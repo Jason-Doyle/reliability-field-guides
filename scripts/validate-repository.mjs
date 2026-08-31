@@ -19,6 +19,7 @@ const textFileNames = new Set([
   '.editorconfig',
   '.gitattributes',
   '.gitignore',
+  'CODEOWNERS',
   'LICENSE',
   'NOTICE',
 ]);
