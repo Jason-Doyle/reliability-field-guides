@@ -1,0 +1,88 @@
+{
+  "$schema": "../integration-decision.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "integration.document-conversion",
+  "version": 1,
+  "title": "Convert approved Markdown documents to PDF",
+  "status": "approved",
+  "owner": "team.documentation",
+  "createdAt": "2026-08-31T17:00:00Z",
+  "reviewedAt": "2026-08-31T17:30:00Z",
+  "nextReviewAt": "2027-02-28T00:00:00Z",
+  "requirement": {
+    "userGoal": "Render local Markdown through an approved template and produce a deterministic PDF artifact.",
+    "scope": "repository",
+    "broadRule": false,
+    "repeatableProcedure": true,
+    "liveExternalState": false,
+    "externalWriteAction": false,
+    "consequentialAction": false,
+    "crossHostReuse": false
+  },
+  "existingCapabilities": [
+    {
+      "name": "Pandoc",
+      "type": "cli",
+      "fit": "partial",
+      "gap": "The approved template, input checks, and output naming convention must be applied consistently."
+    }
+  ],
+  "candidates": [
+    {
+      "mechanism": "local-script",
+      "fit": "meets",
+      "advantages": [
+        "Wraps a mature CLI with deterministic validation and repository defaults."
+      ],
+      "limitations": [
+        "Remains specific to the local build environment."
+      ],
+      "operationalBurden": "low"
+    },
+    {
+      "mechanism": "agent-skill",
+      "fit": "partial",
+      "advantages": [
+        "Could explain when and how to invoke the script."
+      ],
+      "limitations": [
+        "Does not replace the deterministic conversion command."
+      ],
+      "operationalBurden": "low"
+    },
+    {
+      "mechanism": "mcp-server",
+      "fit": "does-not-meet",
+      "advantages": [
+        "Could expose conversion as a discoverable tool."
+      ],
+      "limitations": [
+        "Adds service operation with no live external state, central policy, or cross-host need."
+      ],
+      "operationalBurden": "high"
+    }
+  ],
+  "correctnessBoundaries": [
+    {
+      "rule": "Only files inside the configured source directory may be converted.",
+      "enforcementPoint": "client-code",
+      "failureBehaviour": "Reject paths outside the repository boundary."
+    }
+  ],
+  "decision": {
+    "selectedMechanism": "local-script",
+    "rationale": "The work is a narrow deterministic transformation using an existing CLI. A local wrapper supplies the missing validation and defaults.",
+    "rejectedAlternatives": [
+      {
+        "mechanism": "agent-skill",
+        "reason": "A skill may document the workflow later, but the conversion itself belongs in deterministic code."
+      },
+      {
+        "mechanism": "mcp-server",
+        "reason": "A server boundary provides no material capability or governance benefit."
+      }
+    ],
+    "approvedBy": "lead.documentation",
+    "approvedAt": "2026-08-31T17:30:00Z"
+  }
+}

@@ -1,0 +1,402 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Jason-Doyle/reliability-field-guides/schemas/incident-decision-log/1.0.0",
+  "$comment": "Author: Jason Doyle. Version 1.0.0. Created and last reviewed 2026-08-31.",
+  "title": "Incident Decision Log",
+  "description": "A machine-readable record of material incident decisions, evidence, authority, execution, and review.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "incidentId",
+    "title",
+    "severity",
+    "status",
+    "openedAt",
+    "updatedAt",
+    "incidentCommander",
+    "decisions"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "incidentId": {
+      "$ref": "#/$defs/identifier"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "SEV-1",
+        "SEV-2",
+        "SEV-3",
+        "SEV-4"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "monitoring",
+        "recovering",
+        "closed"
+      ]
+    },
+    "openedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "closedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "incidentCommander": {
+      "$ref": "#/$defs/person"
+    },
+    "decisions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/decision"
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "role"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "uri",
+        "observedAt",
+        "summary",
+        "confidence"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "dashboard",
+            "metric",
+            "log",
+            "trace",
+            "ticket",
+            "deploy",
+            "customer-report",
+            "vendor-notice",
+            "policy",
+            "other"
+          ]
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "summary": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        }
+      }
+    },
+    "option": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "option",
+        "disposition",
+        "reason"
+      ],
+      "properties": {
+        "option": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "disposition": {
+          "type": "string",
+          "enum": [
+            "selected",
+            "rejected",
+            "deferred"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "confirmation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "observedAt",
+        "outcome",
+        "evidence"
+      ],
+      "properties": {
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "effective",
+            "partially-effective",
+            "ineffective",
+            "unknown"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri-reference"
+          }
+        },
+        "notes": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "timestamp",
+        "status",
+        "statement",
+        "context",
+        "options",
+        "evidence",
+        "constraints",
+        "decisionMaker",
+        "authorityReference",
+        "rationale",
+        "actionOwner",
+        "reviewAt"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "proposed",
+            "approved",
+            "executed",
+            "rejected",
+            "superseded"
+          ]
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "context": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "options": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/option"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/evidence"
+          }
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "decisionMaker": {
+          "$ref": "#/$defs/person"
+        },
+        "authorityReference": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "actionOwner": {
+          "$ref": "#/$defs/person"
+        },
+        "reviewAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "executedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confirmation": {
+          "$ref": "#/$defs/confirmation"
+        },
+        "rejectionReason": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "supersededBy": {
+          "$ref": "#/$defs/identifier"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "executed"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "executedAt",
+              "confirmation"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "rejected"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "rejectionReason"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "superseded"
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "supersededBy"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "closed"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "closedAt"
+        ]
+      }
+    }
+  ]
+}

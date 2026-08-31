@@ -1,0 +1,152 @@
+{
+  "$schema": "../decision-map.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "decision.checkout.failover",
+  "version": 1,
+  "status": "active",
+  "serviceOrJourney": "Checkout completion",
+  "title": "Choose rollback, failover, or continued investigation",
+  "owner": "role.checkout-on-call",
+  "backupOwner": "role.incident-commander",
+  "createdAt": "2026-08-31T18:00:00Z",
+  "reviewedAt": "2026-08-31T20:00:00Z",
+  "nextValidationAt": "2026-09-30T00:00:00Z",
+  "decision": {
+    "statement": "When checkout completion burns the critical error budget, the checkout on-call must decide whether to roll back, fail over, or continue investigation within five minutes because delay extends customer and revenue impact.",
+    "condition": "The five-minute checkout completion burn rate exceeds 14 while customer impact is confirmed.",
+    "actor": "role.checkout-on-call",
+    "choices": [
+      "roll-back-recent-change",
+      "fail-over-affected-region",
+      "continue-investigation-without-mitigation"
+    ],
+    "latencyObjectiveSeconds": 300,
+    "consequence": "Customers cannot complete purchases and prolonged delay creates material revenue and trust impact.",
+    "weight": 4
+  },
+  "evidence": [
+    {
+      "id": "evidence.checkout-completion",
+      "question": "Can customers complete checkout, and is impact growing?",
+      "signalTypes": [
+        "metric",
+        "probe",
+        "customer"
+      ],
+      "source": "dashboard://checkout/user-journey",
+      "freshnessObjectiveSeconds": 60,
+      "scope": "Completion by region, payment method, client version, and customer cohort.",
+      "qualityLimits": [
+        "Synthetic probes do not cover every payment provider.",
+        "Client telemetry can arrive up to two minutes late."
+      ],
+      "fallback": "Query edge completion events and support ticket volume from the secondary analytics path."
+    },
+    {
+      "id": "evidence.recent-change",
+      "question": "What changed immediately before impact began?",
+      "signalTypes": [
+        "change",
+        "event"
+      ],
+      "source": "event://production/change-timeline",
+      "freshnessObjectiveSeconds": 30,
+      "scope": "Deployments, feature flags, configuration, dependency versions, and traffic policy.",
+      "qualityLimits": [
+        "Emergency console changes require a separate audit source."
+      ],
+      "fallback": "Compare deployment receipts, feature-flag audit logs, and incident-channel change entries."
+    },
+    {
+      "id": "evidence.failure-boundary",
+      "question": "Which service or dependency boundary is failing?",
+      "signalTypes": [
+        "trace",
+        "log",
+        "dependency"
+      ],
+      "source": "trace://checkout/critical-path",
+      "freshnessObjectiveSeconds": 90,
+      "scope": "Checkout API, inventory, payment authorisation, order creation, and regional dependencies.",
+      "qualityLimits": [
+        "Tail sampling may omit low-volume failure cohorts.",
+        "One payment provider does not propagate full trace context."
+      ],
+      "fallback": "Use correlated request IDs in edge and service logs plus direct dependency health checks."
+    },
+    {
+      "id": "evidence.mitigation-safety",
+      "question": "Are rollback and regional failover safe now?",
+      "signalTypes": [
+        "metric",
+        "change",
+        "dependency"
+      ],
+      "source": "dashboard://checkout/mitigation-readiness",
+      "freshnessObjectiveSeconds": 60,
+      "scope": "Rollback compatibility, replica lag, regional capacity, and order consistency.",
+      "qualityLimits": [
+        "Capacity projection assumes current retry volume remains stable."
+      ],
+      "fallback": "Run the documented rollback and failover precondition checks directly against deployment and data systems."
+    }
+  ],
+  "interpretation": {
+    "method": "playbook",
+    "rule": "Prefer rollback when impact follows a reversible change and rollback checks pass. Prefer failover only when region-specific evidence and data-consistency checks pass. Escalate when neither path is safe.",
+    "confidenceRequired": "high",
+    "knownBlindSpots": [
+      "Low-volume payment cohorts may not move the aggregate burn rate.",
+      "Delayed customer telemetry can understate the first minutes of impact."
+    ],
+    "whenToEscalate": "Declare an incident when customer impact is confirmed, authority is unclear, or no safe mitigation can be selected within five minutes."
+  },
+  "action": {
+    "permittedActions": [
+      "roll-back-recent-change",
+      "fail-over-affected-region",
+      "declare-incident",
+      "disable-checkout-feature",
+      "continue-bounded-investigation"
+    ],
+    "authority": "The checkout on-call may roll back an approved release. Regional failover requires the Incident Commander and data owner.",
+    "rollbackOrRecovery": "Every mitigation has an abort condition, confirmation window, and path to restore normal traffic.",
+    "communicationPath": "Declare through incident command, then provide support, executive, and customer updates from confirmed impact evidence.",
+    "confirmationSignals": [
+      "Checkout completion and error-budget burn recover.",
+      "Affected cohorts recover rather than only the aggregate.",
+      "No new order-consistency or dependency failure appears."
+    ]
+  },
+  "feedback": {
+    "reviewRecord": "incident://checkout/decision-review",
+    "owner": "team.commerce-reliability",
+    "dueWithinDays": 10,
+    "improvementTargets": [
+      "Close trace-context gaps for the unsupported payment provider.",
+      "Review whether low-volume cohorts need separate SLO alerts.",
+      "Retire dashboard panels that do not support this or another declared decision."
+    ]
+  },
+  "validation": {
+    "method": "game-day",
+    "lastValidatedAt": "2026-08-31T20:00:00Z",
+    "evidence": [
+      "repo://reliability/game-days/checkout-failover-2026-08.md"
+    ],
+    "outcome": "conditional"
+  },
+  "scoring": {
+    "purpose": 1,
+    "owner": 1,
+    "evidence": 1,
+    "interpretation": 1,
+    "action": 1,
+    "feedback": 0.5,
+    "validation": 0.5,
+    "weight": 4,
+    "conservativeCoverage": 2,
+    "supportScore": 3.4285714286,
+    "falseConfidenceGap": 1.4285714286
+  }
+}

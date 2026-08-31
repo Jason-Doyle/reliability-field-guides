@@ -1,0 +1,96 @@
+{
+  "$schema": "../memory-record.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "memory.user-1042.response-format",
+  "version": 2,
+  "memoryClass": "user-preference",
+  "riskTier": 1,
+  "status": "deleted",
+  "scope": {
+    "namespace": "example-consumer/user-1042",
+    "owner": {
+      "type": "user",
+      "id": "user.1042"
+    },
+    "subjects": [
+      {
+        "type": "user",
+        "id": "user.1042"
+      }
+    ],
+    "accessPolicy": "policy://memory/deletion-tombstones"
+  },
+  "provenance": {
+    "source": {
+      "type": "user-statement",
+      "id": "deletion-request.991",
+      "uri": "request://memory-deletion/991",
+      "trustLevel": "trusted"
+    },
+    "writer": {
+      "type": "service",
+      "id": "service.memory-deletion-worker"
+    },
+    "observedAt": "2026-08-31T20:00:00Z",
+    "capturedAt": "2026-08-31T20:00:02Z",
+    "extractionMethod": "deterministic-transform"
+  },
+  "validation": {
+    "status": "owner-confirmed",
+    "validatedBy": {
+      "type": "user",
+      "id": "user.1042"
+    },
+    "validatedAt": "2026-08-31T20:00:00Z"
+  },
+  "lifecycle": {
+    "validFrom": "2026-08-31T18:14:05Z",
+    "retention": {
+      "mode": "policy",
+      "policyId": "retention.deletion-tombstone"
+    },
+    "deletedAt": "2026-08-31T20:01:00Z",
+    "deletion": {
+      "requestedAt": "2026-08-31T20:00:00Z",
+      "completedAt": "2026-08-31T20:01:00Z",
+      "scope": [
+        "primary-store",
+        "vector-index",
+        "retrieval-cache",
+        "derived-summary"
+      ],
+      "verificationStatus": "complete",
+      "verifiedAt": "2026-08-31T20:02:00Z"
+    }
+  },
+  "policy": {
+    "sensitivity": "internal",
+    "allowedUses": [
+      "deletion-tombstone-check"
+    ],
+    "prohibitedUses": [
+      "response-formatting",
+      "semantic-retrieval"
+    ],
+    "authoritativeSourceRequiredBeforeAction": false
+  },
+  "relationships": {
+    "supersedes": [
+      {
+        "id": "memory.user-1042.response-format",
+        "version": 1
+      }
+    ]
+  },
+  "audit": {
+    "createdAt": "2026-08-31T20:00:02Z",
+    "createdBy": {
+      "type": "service",
+      "id": "service.memory-store"
+    },
+    "updatedAt": "2026-08-31T20:02:00Z",
+    "lastRetrievedAt": null,
+    "lastConsequentialUseAt": null,
+    "retrievalCount": 0
+  }
+}

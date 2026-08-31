@@ -1,0 +1,127 @@
+{
+  "$schema": "../memory-record.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "memory.procedure.checkout-deployment",
+  "version": 5,
+  "memoryClass": "procedure",
+  "riskTier": 3,
+  "status": "active",
+  "content": {
+    "statement": "Deploy the Checkout API through a canary stage, verify behavioural SLOs, and stop promotion when an abort condition is met.",
+    "structuredValue": {
+      "procedureId": "checkout-deployment",
+      "steps": [
+        "deploy-canary",
+        "verify-behavioural-slos",
+        "evaluate-abort-conditions",
+        "promote-or-rollback"
+      ]
+    },
+    "language": "en"
+  },
+  "scope": {
+    "namespace": "example-co/production-deployment",
+    "owner": {
+      "type": "team",
+      "id": "team.commerce-reliability"
+    },
+    "subjects": [
+      {
+        "type": "procedure",
+        "id": "procedure.checkout-deployment"
+      },
+      {
+        "type": "service",
+        "id": "service.checkout-api"
+      }
+    ],
+    "audience": [
+      {
+        "type": "agent",
+        "id": "agent.deployment-orchestrator"
+      }
+    ],
+    "environments": [
+      "production"
+    ],
+    "accessPolicy": "policy://memory/approved-procedures"
+  },
+  "provenance": {
+    "source": {
+      "type": "procedure",
+      "id": "procedure.checkout-deployment",
+      "uri": "repo://operations/procedures/deploy-checkout.md",
+      "revision": "v5",
+      "trustLevel": "authoritative"
+    },
+    "writer": {
+      "type": "service",
+      "id": "service.procedure-publisher"
+    },
+    "observedAt": "2026-08-28T16:00:00Z",
+    "capturedAt": "2026-08-28T16:05:00Z",
+    "extractionMethod": "deterministic-transform"
+  },
+  "validation": {
+    "status": "owner-confirmed",
+    "validatedBy": {
+      "type": "team",
+      "id": "team.commerce-reliability"
+    },
+    "validatedAt": "2026-08-28T17:00:00Z",
+    "confidence": 1
+  },
+  "lifecycle": {
+    "validFrom": "2026-08-29T00:00:00Z",
+    "reviewAfter": "2026-09-28T00:00:00Z",
+    "retention": {
+      "mode": "event",
+      "policyId": "retention.procedure.until-contract-change",
+      "expiryEvent": "checkout deployment contract changes"
+    }
+  },
+  "policy": {
+    "sensitivity": "internal",
+    "allowedUses": [
+      "checkout-deployment"
+    ],
+    "prohibitedUses": [
+      "cross-service-deployment",
+      "unattended-policy-change"
+    ],
+    "authoritativeSourceRequiredBeforeAction": true
+  },
+  "relationships": {
+    "supersedes": [
+      {
+        "id": "memory.procedure.checkout-deployment",
+        "version": 4
+      }
+    ]
+  },
+  "governance": {
+    "approvalStatus": "approved",
+    "approvedBy": {
+      "type": "team",
+      "id": "team.commerce-reliability"
+    },
+    "approvedAt": "2026-08-28T17:00:00Z",
+    "testEvidence": [
+      "repo://operations/test-results/checkout-deployment-v5.json",
+      "repo://operations/game-days/checkout-abort-2026-08.md"
+    ],
+    "rollbackReference": "repo://operations/procedures/deploy-checkout.md?ref=v4"
+  },
+  "audit": {
+    "createdAt": "2026-08-28T16:05:00Z",
+    "createdBy": {
+      "type": "service",
+      "id": "service.memory-store"
+    },
+    "updatedAt": "2026-08-28T17:00:00Z",
+    "lastRetrievedAt": null,
+    "lastConsequentialUseAt": null,
+    "retrievalCount": 0,
+    "influenceLogReference": "audit://procedure-influence/checkout-deployment"
+  }
+}

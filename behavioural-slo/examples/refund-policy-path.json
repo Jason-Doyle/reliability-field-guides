@@ -1,0 +1,102 @@
+{
+  "$schema": "../behavioural-slo.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "slo.billing.refund-policy-path",
+  "version": 1,
+  "title": "Correct handling of high-consequence refund requests",
+  "status": "active",
+  "owner": "team.billing-experience",
+  "createdAt": "2026-08-31T18:00:00Z",
+  "workflow": {
+    "product": "Billing Support Assistant",
+    "name": "Refund policy interpretation",
+    "riskTier": "decision-support",
+    "intendedUse": "Prepare a grounded recommendation for an authorised support agent reviewing a refund request.",
+    "prohibitedReliance": [
+      "The assistant may not establish entitlement or issue a refund without current account and policy validation."
+    ],
+    "population": "High-consequence refund cases in the approved billing-support evaluation cohort.",
+    "affectedParties": [
+      "customers",
+      "support-agents",
+      "billing-operations"
+    ],
+    "authoritativeSources": [
+      "policy://billing/refunds/current",
+      "system://customer-account/entitlements"
+    ],
+    "reversibility": "compensable",
+    "maximumConsequence": "A customer receives an incorrect entitlement decision or misses a valid refund path."
+  },
+  "objective": {
+    "statement": "At least 99.5 percent of eligible high-consequence cases must select the correct policy path, cite the active policy source, and avoid execution when a precondition is unresolved.",
+    "behaviourCategory": "critical-task-success",
+    "indicator": {
+      "name": "compliant-refund-recommendation-rate",
+      "numerator": "Eligible cases with the correct policy path, active source citation, and no execution when a precondition is unresolved.",
+      "denominator": "All eligible high-consequence refund cases presented to the evaluation.",
+      "unit": "ratio",
+      "direction": "at-least",
+      "threshold": 0.995
+    },
+    "window": {
+      "type": "evaluation-cohort",
+      "cohort": "billing-refunds-2026-08-v3"
+    },
+    "minimumSampleSize": 200,
+    "segments": [
+      "policy-exception",
+      "expired-entitlement",
+      "conflicting-source",
+      "missing-account-data"
+    ]
+  },
+  "evaluation": {
+    "method": "hybrid",
+    "groundTruthOwner": "team.billing-policy",
+    "datasetVersion": "billing-refunds-2026-08-v3",
+    "requiredCohorts": [
+      "golden",
+      "high-consequence",
+      "omission",
+      "stale-source",
+      "prompt-injection",
+      "incident-regression"
+    ],
+    "dataSource": "repo://billing-assistant/evals/refund-policy-path",
+    "exclusions": [
+      "Cases lacking a completed authoritative policy label are reported separately and do not count as passing."
+    ],
+    "reviewSampling": "A billing-policy reviewer inspects every failure and a random 10 percent of passing high-consequence cases.",
+    "knownLimitations": [
+      "The cohort cannot represent every future policy exception.",
+      "Production source latency is measured by a separate retrieval SLO."
+    ]
+  },
+  "response": {
+    "breachActions": [
+      "Block the affected model, prompt, retrieval, or policy change from promotion.",
+      "Review failures by policy path and customer cohort.",
+      "Open a behavioural incident if production cases may be affected."
+    ],
+    "incidentTrigger": true,
+    "releaseGate": true,
+    "owner": "team.billing-experience",
+    "compensationPath": "Correct affected recommendations, notify support owners, and review customer cases where an incorrect decision may have been used."
+  },
+  "controls": {
+    "executionAllowed": false,
+    "deterministicPreconditions": true,
+    "humanApprovalBoundToPayload": false,
+    "leastPrivilege": true,
+    "replayRequired": true
+  },
+  "validation": {
+    "result": "pass",
+    "evidence": [
+      "repo://billing-assistant/eval-results/refund-policy-path-2026-08-31.json"
+    ],
+    "lastValidatedAt": "2026-08-31T20:00:00Z",
+    "nextReviewAt": "2026-09-30T00:00:00Z"
+  }
+}

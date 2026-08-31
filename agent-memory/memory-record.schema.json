@@ -1,0 +1,883 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Jason-Doyle/reliability-field-guides/schemas/agent-memory/memory-record/1.0.0",
+  "$comment": "Author: Jason Doyle. Version 1.0.0. Created and last reviewed 2026-08-31.",
+  "title": "Agent Memory Record",
+  "description": "A vendor-neutral contract for persistent memory that may influence an AI agent across tasks or sessions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "memoryClass",
+    "riskTier",
+    "status",
+    "scope",
+    "provenance",
+    "validation",
+    "lifecycle",
+    "policy",
+    "relationships",
+    "audit"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri-reference",
+      "description": "Optional schema reference used by editors and validators."
+    },
+    "schemaVersion": {
+      "const": "1.0.0",
+      "description": "Version of this memory record contract."
+    },
+    "id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Monotonically increasing record version used for history and concurrency control."
+    },
+    "memoryClass": {
+      "type": "string",
+      "enum": [
+        "working-context",
+        "user-preference",
+        "episodic",
+        "business-fact",
+        "procedure",
+        "shared-memory"
+      ]
+    },
+    "riskTier": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "description": "Consequence tier from temporary working state at 0 to consequential state at 4."
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "proposed",
+        "active",
+        "superseded",
+        "expired",
+        "quarantined",
+        "deleted"
+      ]
+    },
+    "content": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statement"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10000,
+          "description": "Human-readable assertion or instruction represented by the memory."
+        },
+        "structuredValue": {
+          "description": "Optional machine-readable representation of the statement."
+        },
+        "language": {
+          "type": "string",
+          "pattern": "^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$"
+        }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "namespace",
+        "owner",
+        "subjects"
+      ],
+      "properties": {
+        "namespace": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]*$",
+          "description": "Authorisation partition supplied by the application, not inferred by the model."
+        },
+        "owner": {
+          "$ref": "#/$defs/principal"
+        },
+        "subjects": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/entityReference"
+          }
+        },
+        "audience": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/principal"
+          }
+        },
+        "environments": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "accessPolicy": {
+          "type": "string",
+          "format": "uri-reference",
+          "description": "Reference to the policy enforced by the application when reading or writing this scope."
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source",
+        "writer",
+        "observedAt",
+        "capturedAt"
+      ],
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/source"
+        },
+        "writer": {
+          "$ref": "#/$defs/principal"
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the underlying statement or event was observed."
+        },
+        "capturedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this memory version was persisted."
+        },
+        "extractionMethod": {
+          "type": "string",
+          "enum": [
+            "direct-copy",
+            "deterministic-transform",
+            "model-extraction",
+            "human-entry",
+            "import"
+          ]
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "unverified",
+            "source-backed",
+            "owner-confirmed",
+            "system-validated",
+            "disputed"
+          ]
+        },
+        "validatedBy": {
+          "$ref": "#/$defs/principal"
+        },
+        "validatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence in extraction or interpretation, not a claim that the statement is true."
+        },
+        "uncertainty": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "source-backed",
+                  "owner-confirmed",
+                  "system-validated",
+                  "disputed"
+                ]
+              }
+            },
+            "required": [
+              "status"
+            ]
+          },
+          "then": {
+            "required": [
+              "validatedBy",
+              "validatedAt"
+            ]
+          }
+        }
+      ]
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "validFrom",
+        "retention"
+      ],
+      "properties": {
+        "validFrom": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "reviewAfter": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "expiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "retention": {
+          "$ref": "#/$defs/retention"
+        },
+        "deletedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "deletion": {
+          "$ref": "#/$defs/deletion"
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sensitivity",
+        "allowedUses",
+        "prohibitedUses",
+        "authoritativeSourceRequiredBeforeAction"
+      ],
+      "properties": {
+        "sensitivity": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "confidential",
+            "restricted"
+          ]
+        },
+        "allowedUses": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        },
+        "prohibitedUses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        },
+        "authoritativeSourceRequiredBeforeAction": {
+          "type": "boolean",
+          "description": "Whether current truth must be revalidated before this memory can influence an action."
+        }
+      }
+    },
+    "relationships": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "derivedFrom": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/memoryReference"
+          }
+        },
+        "supersedes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/memoryReference"
+          }
+        },
+        "supersededBy": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/memoryReference"
+          }
+        },
+        "conflictsWith": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/memoryReference"
+          }
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "approvalStatus"
+      ],
+      "properties": {
+        "approvalStatus": {
+          "type": "string",
+          "enum": [
+            "not-required",
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "approvedBy": {
+          "$ref": "#/$defs/principal"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "testEvidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri-reference"
+          }
+        },
+        "rollbackReference": {
+          "type": "string",
+          "format": "uri-reference"
+        }
+      }
+    },
+    "audit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "createdAt",
+        "createdBy",
+        "updatedAt",
+        "retrievalCount"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "createdBy": {
+          "$ref": "#/$defs/principal"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "lastRetrievedAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "lastConsequentialUseAt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "format": "date-time"
+        },
+        "retrievalCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "influenceLogReference": {
+          "type": "string",
+          "format": "uri-reference"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "principal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "user",
+            "agent",
+            "team",
+            "service",
+            "tenant",
+            "system"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    },
+    "entityReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "id",
+        "trustLevel"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "user-statement",
+            "authoritative-system",
+            "tool-result",
+            "observation",
+            "model-inference",
+            "summary",
+            "procedure",
+            "imported-record"
+          ]
+        },
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "uri": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "revision": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "trustLevel": {
+          "type": "string",
+          "enum": [
+            "authoritative",
+            "trusted",
+            "untrusted",
+            "mixed"
+          ]
+        },
+        "evidenceHash": {
+          "type": "string",
+          "pattern": "^sha256:[a-f0-9]{64}$"
+        }
+      }
+    },
+    "memoryReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "retention": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mode",
+        "policyId"
+      ],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "session",
+            "ttl",
+            "event",
+            "manual",
+            "policy"
+          ]
+        },
+        "policyId": {
+          "$ref": "#/$defs/identifier"
+        },
+        "ttlDays": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expiryEvent": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "ttl"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "ttlDays"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "mode": {
+                "const": "event"
+              }
+            },
+            "required": [
+              "mode"
+            ]
+          },
+          "then": {
+            "required": [
+              "expiryEvent"
+            ]
+          }
+        }
+      ]
+    },
+    "deletion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestedAt",
+        "completedAt",
+        "scope",
+        "verificationStatus"
+      ],
+      "properties": {
+        "requestedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "completedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "scope": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "pattern": "^[a-z0-9][a-z0-9-]*$"
+          }
+        },
+        "verificationStatus": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "partial",
+            "complete"
+          ]
+        },
+        "verifiedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "deleted"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "not": {
+          "required": [
+            "content"
+          ]
+        },
+        "properties": {
+          "lifecycle": {
+            "required": [
+              "deletedAt",
+              "deletion"
+            ],
+            "properties": {
+              "deletion": {
+                "properties": {
+                  "verificationStatus": {
+                    "enum": [
+                      "partial",
+                      "complete"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "required": [
+          "content"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "active"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "validation": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "source-backed",
+                  "owner-confirmed",
+                  "system-validated"
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "superseded"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "relationships": {
+            "required": [
+              "supersededBy"
+            ],
+            "properties": {
+              "supersededBy": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "expired"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "lifecycle": {
+            "required": [
+              "expiresAt"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "riskTier": {
+            "minimum": 2
+          }
+        },
+        "required": [
+          "riskTier"
+        ]
+      },
+      "then": {
+        "properties": {
+          "lifecycle": {
+            "anyOf": [
+              {
+                "required": [
+                  "reviewAfter"
+                ]
+              },
+              {
+                "required": [
+                  "expiresAt"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "riskTier": {
+            "const": 4
+          }
+        },
+        "required": [
+          "riskTier"
+        ]
+      },
+      "then": {
+        "properties": {
+          "policy": {
+            "properties": {
+              "authoritativeSourceRequiredBeforeAction": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "memoryClass": {
+            "const": "procedure"
+          },
+          "status": {
+            "const": "active"
+          }
+        },
+        "required": [
+          "memoryClass",
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "governance"
+        ],
+        "properties": {
+          "governance": {
+            "required": [
+              "approvalStatus",
+              "approvedBy",
+              "approvedAt",
+              "testEvidence",
+              "rollbackReference"
+            ],
+            "properties": {
+              "approvalStatus": {
+                "const": "approved"
+              },
+              "testEvidence": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

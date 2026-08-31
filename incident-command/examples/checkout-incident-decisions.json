@@ -1,0 +1,124 @@
+{
+  "$schema": "../decision-log.schema.json",
+  "schemaVersion": "1.0.0",
+  "incidentId": "INC-2026-0831-01",
+  "title": "Checkout completion failures after release v42",
+  "severity": "SEV-1",
+  "status": "active",
+  "openedAt": "2026-08-31T19:04:00Z",
+  "updatedAt": "2026-08-31T19:24:00Z",
+  "incidentCommander": {
+    "id": "person.commander-a",
+    "name": "Incident Commander A",
+    "role": "Incident Commander"
+  },
+  "decisions": [
+    {
+      "id": "DEC-001",
+      "timestamp": "2026-08-31T19:10:00Z",
+      "status": "executed",
+      "statement": "Roll back Checkout API release v42.",
+      "context": "Checkout completion fell below the critical SLO immediately after release v42 reached all production regions.",
+      "options": [
+        {
+          "option": "Roll back release v42.",
+          "disposition": "selected",
+          "reason": "The deployment timing matches the impact start and rollback is tested and reversible."
+        },
+        {
+          "option": "Continue investigation without changing production.",
+          "disposition": "rejected",
+          "reason": "Customer impact is growing and a safe mitigation is available."
+        }
+      ],
+      "evidence": [
+        {
+          "type": "deploy",
+          "uri": "deploy://checkout-api/v42",
+          "observedAt": "2026-08-31T19:00:00Z",
+          "summary": "Release v42 reached 100 percent production four minutes before impact began.",
+          "confidence": "high"
+        },
+        {
+          "type": "metric",
+          "uri": "metric://checkout/completion-rate?window=15m",
+          "observedAt": "2026-08-31T19:09:00Z",
+          "summary": "Checkout completion declined from 98.9 percent to 61.2 percent.",
+          "confidence": "high"
+        }
+      ],
+      "constraints": [
+        "Preserve release logs and traces before rollback.",
+        "Do not combine rollback with a feature-flag change until effect is measured."
+      ],
+      "decisionMaker": {
+        "id": "person.commander-a",
+        "name": "Incident Commander A",
+        "role": "Incident Commander"
+      },
+      "authorityReference": "policy://incident/production-rollback",
+      "rationale": "The temporal correlation is strong, rollback is reversible, and immediate customer-impact reduction takes priority over root-cause confirmation.",
+      "actionOwner": {
+        "id": "person.operations-a",
+        "name": "Operations Lead A",
+        "role": "Operations Lead"
+      },
+      "reviewAt": "2026-08-31T19:20:00Z",
+      "executedAt": "2026-08-31T19:12:00Z",
+      "confirmation": {
+        "observedAt": "2026-08-31T19:18:00Z",
+        "outcome": "effective",
+        "evidence": [
+          "metric://checkout/completion-rate?window=5m",
+          "trace://checkout/errors?release=v41"
+        ],
+        "notes": "Completion recovered to 97.8 percent and the v42 error signature stopped."
+      }
+    },
+    {
+      "id": "DEC-002",
+      "timestamp": "2026-08-31T19:15:00Z",
+      "status": "rejected",
+      "statement": "Fail all checkout traffic to the secondary region.",
+      "context": "A regional failover was proposed as a second mitigation while rollback was running.",
+      "options": [
+        {
+          "option": "Fail all traffic to the secondary region.",
+          "disposition": "rejected",
+          "reason": "Replica lag creates a material order-consistency risk."
+        },
+        {
+          "option": "Complete rollback and reassess regional health.",
+          "disposition": "selected",
+          "reason": "This avoids adding a second change before rollback effect is known."
+        }
+      ],
+      "evidence": [
+        {
+          "type": "dashboard",
+          "uri": "dashboard://checkout/secondary-region-readiness",
+          "observedAt": "2026-08-31T19:14:00Z",
+          "summary": "The secondary order replica is twelve minutes behind the recovery objective.",
+          "confidence": "high"
+        }
+      ],
+      "constraints": [
+        "Do not expose customers to duplicate or missing order state."
+      ],
+      "decisionMaker": {
+        "id": "person.commander-a",
+        "name": "Incident Commander A",
+        "role": "Incident Commander"
+      },
+      "authorityReference": "policy://incident/regional-failover",
+      "rationale": "The proposed failover could create a larger data-consistency incident and rollback confirmation is due within five minutes.",
+      "actionOwner": {
+        "id": "person.investigation-a",
+        "name": "Investigation Lead A",
+        "role": "Investigation Lead"
+      },
+      "reviewAt": "2026-08-31T19:25:00Z",
+      "rejectionReason": "Secondary-region replica lag exceeds the failover safety limit."
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "$schema": "../memory-record.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "memory.checkout-api.owner",
+  "version": 3,
+  "memoryClass": "business-fact",
+  "riskTier": 2,
+  "status": "active",
+  "content": {
+    "statement": "The Checkout API is owned by Commerce Reliability.",
+    "structuredValue": {
+      "service": "checkout-api",
+      "owningTeam": "commerce-reliability"
+    },
+    "language": "en"
+  },
+  "scope": {
+    "namespace": "example-co/production-operations",
+    "owner": {
+      "type": "team",
+      "id": "team.commerce-reliability"
+    },
+    "subjects": [
+      {
+        "type": "service",
+        "id": "service.checkout-api"
+      }
+    ],
+    "audience": [
+      {
+        "type": "agent",
+        "id": "agent.incident-assistant"
+      }
+    ],
+    "environments": [
+      "production"
+    ],
+    "accessPolicy": "policy://memory/production-operations"
+  },
+  "provenance": {
+    "source": {
+      "type": "authoritative-system",
+      "id": "runbook.checkout-api.ownership",
+      "uri": "repo://operations/runbooks/checkout.md#ownership",
+      "revision": "8bd91ce",
+      "trustLevel": "authoritative"
+    },
+    "writer": {
+      "type": "agent",
+      "id": "agent.ops-memory-writer"
+    },
+    "observedAt": "2026-08-31T18:00:00Z",
+    "capturedAt": "2026-08-31T18:00:04Z",
+    "extractionMethod": "deterministic-transform"
+  },
+  "validation": {
+    "status": "system-validated",
+    "validatedBy": {
+      "type": "service",
+      "id": "service.runbook-validator"
+    },
+    "validatedAt": "2026-08-31T18:00:05Z",
+    "confidence": 1
+  },
+  "lifecycle": {
+    "validFrom": "2026-08-31T18:00:00Z",
+    "reviewAfter": "2026-09-30T00:00:00Z",
+    "expiresAt": "2026-11-29T18:00:00Z",
+    "retention": {
+      "mode": "ttl",
+      "policyId": "retention.operational-fact.90d",
+      "ttlDays": 90
+    }
+  },
+  "policy": {
+    "sensitivity": "internal",
+    "allowedUses": [
+      "incident-routing",
+      "ownership-lookup"
+    ],
+    "prohibitedUses": [
+      "personnel-evaluation"
+    ],
+    "authoritativeSourceRequiredBeforeAction": true
+  },
+  "relationships": {
+    "supersedes": [
+      {
+        "id": "memory.checkout-api.owner",
+        "version": 2
+      }
+    ]
+  },
+  "audit": {
+    "createdAt": "2026-08-31T18:00:04Z",
+    "createdBy": {
+      "type": "service",
+      "id": "service.memory-store"
+    },
+    "updatedAt": "2026-08-31T18:00:05Z",
+    "lastRetrievedAt": null,
+    "lastConsequentialUseAt": null,
+    "retrievalCount": 0,
+    "influenceLogReference": "audit://memory-influence/checkout-api"
+  }
+}

@@ -1,0 +1,754 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Jason-Doyle/reliability-field-guides/schemas/integration-selection/1.0.0",
+  "$comment": "Author: Jason Doyle. Version 1.0.0. Created and last reviewed 2026-08-31.",
+  "title": "Integration Selection Decision",
+  "description": "A reviewable decision contract for selecting the minimum sufficient agent integration.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "title",
+    "status",
+    "owner",
+    "createdAt",
+    "requirement",
+    "existingCapabilities",
+    "candidates",
+    "correctnessBoundaries",
+    "decision"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "approved",
+        "superseded",
+        "rejected"
+      ]
+    },
+    "owner": {
+      "$ref": "#/$defs/identifier"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nextReviewAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "supersededBy": {
+      "$ref": "#/$defs/decisionReference"
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "userGoal",
+        "scope",
+        "broadRule",
+        "repeatableProcedure",
+        "liveExternalState",
+        "externalWriteAction",
+        "consequentialAction",
+        "crossHostReuse"
+      ],
+      "properties": {
+        "userGoal": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "scope": {
+          "type": "string",
+          "enum": [
+            "task",
+            "repository",
+            "team",
+            "organisation",
+            "multi-organisation"
+          ]
+        },
+        "broadRule": {
+          "type": "boolean"
+        },
+        "repeatableProcedure": {
+          "type": "boolean"
+        },
+        "liveExternalState": {
+          "type": "boolean"
+        },
+        "externalWriteAction": {
+          "type": "boolean"
+        },
+        "consequentialAction": {
+          "type": "boolean"
+        },
+        "crossHostReuse": {
+          "type": "boolean"
+        },
+        "freshnessObjective": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        }
+      }
+    },
+    "existingCapabilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/existingCapability"
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "minItems": 2,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/candidate"
+      }
+    },
+    "skillEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "existingToolsSufficient",
+        "credentialCustodyRequired",
+        "serverSidePolicyRequired",
+        "inspectableDependencies",
+        "testedSuccessAndFailureCases"
+      ],
+      "properties": {
+        "existingToolsSufficient": {
+          "type": "boolean"
+        },
+        "credentialCustodyRequired": {
+          "type": "boolean"
+        },
+        "serverSidePolicyRequired": {
+          "type": "boolean"
+        },
+        "inspectableDependencies": {
+          "type": "boolean"
+        },
+        "testedSuccessAndFailureCases": {
+          "type": "boolean"
+        }
+      }
+    },
+    "mcpEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "multipleHostsOrTeams",
+        "discoverableCapabilities",
+        "typedSchemasPreventErrors",
+        "credentialBoundary",
+        "centralAuthorisation",
+        "stableRemoteEndpoint",
+        "auditableStructuredCalls",
+        "operationalOwner",
+        "monitoringAndSupport",
+        "versioningAndRetirement"
+      ],
+      "properties": {
+        "multipleHostsOrTeams": {
+          "type": "boolean"
+        },
+        "discoverableCapabilities": {
+          "type": "boolean"
+        },
+        "typedSchemasPreventErrors": {
+          "type": "boolean"
+        },
+        "credentialBoundary": {
+          "type": "boolean"
+        },
+        "centralAuthorisation": {
+          "type": "boolean"
+        },
+        "stableRemoteEndpoint": {
+          "type": "boolean"
+        },
+        "auditableStructuredCalls": {
+          "type": "boolean"
+        },
+        "operationalOwner": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "monitoringAndSupport": {
+          "type": "boolean"
+        },
+        "versioningAndRetirement": {
+          "type": "boolean"
+        }
+      }
+    },
+    "correctnessBoundaries": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/correctnessBoundary"
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "selectedMechanism",
+        "rationale",
+        "rejectedAlternatives"
+      ],
+      "properties": {
+        "selectedMechanism": {
+          "$ref": "#/$defs/mechanism"
+        },
+        "rationale": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4000
+        },
+        "rejectedAlternatives": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "mechanism",
+              "reason"
+            ],
+            "properties": {
+              "mechanism": {
+                "$ref": "#/$defs/mechanism"
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1000
+              }
+            }
+          }
+        },
+        "approvedBy": {
+          "$ref": "#/$defs/identifier"
+        },
+        "approvedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "mechanism": {
+      "type": "string",
+      "enum": [
+        "instructions",
+        "agent-skill",
+        "native-integration",
+        "cli-or-library",
+        "local-script",
+        "mcp-server",
+        "user-interface"
+      ]
+    },
+    "decisionReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "existingCapability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "type",
+        "fit"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "built-in",
+            "native-connector",
+            "cli",
+            "library",
+            "api",
+            "script",
+            "skill",
+            "mcp-server",
+            "user-interface"
+          ]
+        },
+        "fit": {
+          "type": "string",
+          "enum": [
+            "meets",
+            "partial",
+            "does-not-meet"
+          ]
+        },
+        "gap": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "fit": {
+                "enum": [
+                  "partial",
+                  "does-not-meet"
+                ]
+              }
+            },
+            "required": [
+              "fit"
+            ]
+          },
+          "then": {
+            "required": [
+              "gap"
+            ]
+          }
+        }
+      ]
+    },
+    "candidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mechanism",
+        "fit",
+        "advantages",
+        "limitations",
+        "operationalBurden"
+      ],
+      "properties": {
+        "mechanism": {
+          "$ref": "#/$defs/mechanism"
+        },
+        "fit": {
+          "type": "string",
+          "enum": [
+            "meets",
+            "partial",
+            "does-not-meet"
+          ]
+        },
+        "advantages": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "limitations": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "operationalBurden": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        }
+      }
+    },
+    "correctnessBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule",
+        "enforcementPoint",
+        "failureBehaviour"
+      ],
+      "properties": {
+        "rule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "enforcementPoint": {
+          "type": "string",
+          "enum": [
+            "model-guidance",
+            "client-code",
+            "server-code",
+            "policy-engine",
+            "human-approval",
+            "external-system"
+          ]
+        },
+        "failureBehaviour": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "approved"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "reviewedAt",
+          "nextReviewAt"
+        ],
+        "properties": {
+          "decision": {
+            "required": [
+              "approvedBy",
+              "approvedAt"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "superseded"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "required": [
+          "supersededBy"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "requirement": {
+            "properties": {
+              "consequentialAction": {
+                "const": true
+              }
+            },
+            "required": [
+              "consequentialAction"
+            ]
+          }
+        },
+        "required": [
+          "requirement"
+        ]
+      },
+      "then": {
+        "properties": {
+          "correctnessBoundaries": {
+            "minItems": 1,
+            "contains": {
+              "properties": {
+                "enforcementPoint": {
+                  "enum": [
+                    "client-code",
+                    "server-code",
+                    "policy-engine",
+                    "human-approval",
+                    "external-system"
+                  ]
+                }
+              },
+              "required": [
+                "enforcementPoint"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "properties": {
+              "selectedMechanism": {
+                "const": "instructions"
+              }
+            },
+            "required": [
+              "selectedMechanism"
+            ]
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "properties": {
+          "requirement": {
+            "properties": {
+              "broadRule": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "properties": {
+              "selectedMechanism": {
+                "const": "agent-skill"
+              }
+            },
+            "required": [
+              "selectedMechanism"
+            ]
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "required": [
+          "skillEligibility"
+        ],
+        "properties": {
+          "requirement": {
+            "properties": {
+              "repeatableProcedure": {
+                "const": true
+              }
+            }
+          },
+          "skillEligibility": {
+            "properties": {
+              "existingToolsSufficient": {
+                "const": true
+              },
+              "credentialCustodyRequired": {
+                "const": false
+              },
+              "serverSidePolicyRequired": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "decision": {
+            "properties": {
+              "selectedMechanism": {
+                "const": "mcp-server"
+              }
+            },
+            "required": [
+              "selectedMechanism"
+            ]
+          }
+        },
+        "required": [
+          "decision"
+        ]
+      },
+      "then": {
+        "required": [
+          "mcpEligibility"
+        ],
+        "properties": {
+          "requirement": {
+            "anyOf": [
+              {
+                "properties": {
+                  "liveExternalState": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "liveExternalState"
+                ]
+              },
+              {
+                "properties": {
+                  "externalWriteAction": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "externalWriteAction"
+                ]
+              }
+            ]
+          },
+          "mcpEligibility": {
+            "properties": {
+              "operationalOwner": {
+                "minLength": 1
+              },
+              "monitoringAndSupport": {
+                "const": true
+              },
+              "versioningAndRetirement": {
+                "const": true
+              }
+            },
+            "anyOf": [
+              {
+                "properties": {
+                  "multipleHostsOrTeams": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "multipleHostsOrTeams"
+                ]
+              },
+              {
+                "properties": {
+                  "discoverableCapabilities": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "discoverableCapabilities"
+                ]
+              },
+              {
+                "properties": {
+                  "typedSchemasPreventErrors": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "typedSchemasPreventErrors"
+                ]
+              },
+              {
+                "properties": {
+                  "credentialBoundary": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "credentialBoundary"
+                ]
+              },
+              {
+                "properties": {
+                  "centralAuthorisation": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "centralAuthorisation"
+                ]
+              },
+              {
+                "properties": {
+                  "stableRemoteEndpoint": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "stableRemoteEndpoint"
+                ]
+              },
+              {
+                "properties": {
+                  "auditableStructuredCalls": {
+                    "const": true
+                  }
+                },
+                "required": [
+                  "auditableStructuredCalls"
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: "If you use these field guides, please cite this repository."
+title: "Reliability Field Guides"
+type: software
+version: "0.1.0"
+date-released: 2026-08-31
+authors:
+  - family-names: "Doyle"
+    given-names: "Jason"
+repository-code: "https://github.com/Jason-Doyle/reliability-field-guides"
+url: "https://jasondoyle.ie/"
+license: "Apache-2.0"

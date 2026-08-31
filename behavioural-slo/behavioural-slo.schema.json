@@ -1,0 +1,733 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Jason-Doyle/reliability-field-guides/schemas/behavioural-slo/1.0.0",
+  "$comment": "Author: Jason Doyle. Version 1.0.0. Created and last reviewed 2026-08-31.",
+  "title": "Behavioural Service Level Objective",
+  "description": "A contract for measurable product behaviour that infrastructure health alone cannot establish.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "title",
+    "status",
+    "owner",
+    "createdAt",
+    "workflow",
+    "objective",
+    "evaluation",
+    "response",
+    "controls",
+    "validation"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "retired"
+      ]
+    },
+    "owner": {
+      "$ref": "#/$defs/identifier"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "product",
+        "name",
+        "riskTier",
+        "intendedUse",
+        "prohibitedReliance",
+        "population",
+        "affectedParties",
+        "authoritativeSources",
+        "reversibility",
+        "maximumConsequence"
+      ],
+      "properties": {
+        "product": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "riskTier": {
+          "type": "string",
+          "enum": [
+            "advisory",
+            "decision-support",
+            "bounded-action",
+            "high-impact-action",
+            "prohibited-autonomy"
+          ]
+        },
+        "intendedUse": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "prohibitedReliance": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "population": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "affectedParties": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        "authoritativeSources": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri-reference"
+          }
+        },
+        "reversibility": {
+          "type": "string",
+          "enum": [
+            "reversible",
+            "compensable",
+            "containable",
+            "irreversible"
+          ]
+        },
+        "maximumConsequence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statement",
+        "behaviourCategory",
+        "indicator",
+        "window",
+        "minimumSampleSize"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "behaviourCategory": {
+          "type": "string",
+          "enum": [
+            "critical-task-success",
+            "omission",
+            "grounding",
+            "retrieval",
+            "harmful-action",
+            "escalation",
+            "drift",
+            "replay-completeness",
+            "custom"
+          ]
+        },
+        "indicator": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "name",
+            "numerator",
+            "denominator",
+            "unit",
+            "direction",
+            "threshold"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "numerator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "denominator": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "unit": {
+              "type": "string",
+              "enum": [
+                "ratio",
+                "percentage",
+                "count",
+                "seconds"
+              ]
+            },
+            "direction": {
+              "type": "string",
+              "enum": [
+                "at-least",
+                "at-most",
+                "exactly"
+              ]
+            },
+            "threshold": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "window": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "enum": [
+                "rolling",
+                "calendar",
+                "evaluation-cohort",
+                "release"
+              ]
+            },
+            "duration": {
+              "type": "string",
+              "pattern": "^P(?!$).+"
+            },
+            "cohort": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "releaseScope": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "rolling",
+                      "calendar"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              "then": {
+                "required": [
+                  "duration"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "evaluation-cohort"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              "then": {
+                "required": [
+                  "cohort"
+                ]
+              }
+            },
+            {
+              "if": {
+                "properties": {
+                  "type": {
+                    "const": "release"
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              },
+              "then": {
+                "required": [
+                  "releaseScope"
+                ]
+              }
+            }
+          ]
+        },
+        "minimumSampleSize": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "segments": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "groundTruthOwner",
+        "datasetVersion",
+        "requiredCohorts",
+        "dataSource",
+        "exclusions",
+        "knownLimitations"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "labelled-set",
+            "human-review",
+            "deterministic-check",
+            "production-sampling",
+            "hybrid"
+          ]
+        },
+        "groundTruthOwner": {
+          "$ref": "#/$defs/identifier"
+        },
+        "datasetVersion": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "requiredCohorts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          }
+        },
+        "dataSource": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "exclusions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "reviewSampling": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "knownLimitations": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      }
+    },
+    "response": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "breachActions",
+        "incidentTrigger",
+        "releaseGate",
+        "owner"
+      ],
+      "properties": {
+        "breachActions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "incidentTrigger": {
+          "type": "boolean"
+        },
+        "releaseGate": {
+          "type": "boolean"
+        },
+        "owner": {
+          "$ref": "#/$defs/identifier"
+        },
+        "stopCondition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "compensationPath": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "controls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "executionAllowed",
+        "deterministicPreconditions",
+        "humanApprovalBoundToPayload",
+        "leastPrivilege",
+        "replayRequired"
+      ],
+      "properties": {
+        "executionAllowed": {
+          "type": "boolean"
+        },
+        "deterministicPreconditions": {
+          "type": "boolean"
+        },
+        "humanApprovalBoundToPayload": {
+          "type": "boolean"
+        },
+        "leastPrivilege": {
+          "type": "boolean"
+        },
+        "replayRequired": {
+          "type": "boolean"
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "result",
+        "evidence"
+      ],
+      "properties": {
+        "result": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "pass",
+            "conditional",
+            "fail"
+          ]
+        },
+        "evidence": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri-reference"
+          }
+        },
+        "lastValidatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "nextReviewAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "active"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "validation": {
+            "required": [
+              "lastValidatedAt",
+              "nextReviewAt"
+            ],
+            "properties": {
+              "result": {
+                "enum": [
+                  "pass",
+                  "conditional"
+                ]
+              },
+              "evidence": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "workflow": {
+            "properties": {
+              "riskTier": {
+                "enum": [
+                  "decision-support",
+                  "bounded-action",
+                  "high-impact-action",
+                  "prohibited-autonomy"
+                ]
+              }
+            },
+            "required": [
+              "riskTier"
+            ]
+          }
+        },
+        "required": [
+          "workflow"
+        ]
+      },
+      "then": {
+        "properties": {
+          "workflow": {
+            "properties": {
+              "authoritativeSources": {
+                "minItems": 1
+              }
+            }
+          },
+          "controls": {
+            "properties": {
+              "replayRequired": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "workflow": {
+            "properties": {
+              "riskTier": {
+                "const": "high-impact-action"
+              }
+            },
+            "required": [
+              "riskTier"
+            ]
+          }
+        },
+        "required": [
+          "workflow"
+        ]
+      },
+      "then": {
+        "properties": {
+          "controls": {
+            "properties": {
+              "deterministicPreconditions": {
+                "const": true
+              },
+              "humanApprovalBoundToPayload": {
+                "const": true
+              },
+              "leastPrivilege": {
+                "const": true
+              },
+              "replayRequired": {
+                "const": true
+              }
+            }
+          },
+          "response": {
+            "properties": {
+              "incidentTrigger": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "workflow": {
+            "properties": {
+              "riskTier": {
+                "const": "prohibited-autonomy"
+              }
+            },
+            "required": [
+              "riskTier"
+            ]
+          }
+        },
+        "required": [
+          "workflow"
+        ]
+      },
+      "then": {
+        "properties": {
+          "controls": {
+            "properties": {
+              "executionAllowed": {
+                "const": false
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "workflow": {
+            "properties": {
+              "reversibility": {
+                "const": "irreversible"
+              }
+            },
+            "required": [
+              "reversibility"
+            ]
+          }
+        },
+        "required": [
+          "workflow"
+        ]
+      },
+      "then": {
+        "properties": {
+          "response": {
+            "required": [
+              "stopCondition"
+            ],
+            "properties": {
+              "incidentTrigger": {
+                "const": true
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "objective": {
+            "properties": {
+              "behaviourCategory": {
+                "const": "harmful-action"
+              }
+            },
+            "required": [
+              "behaviourCategory"
+            ]
+          }
+        },
+        "required": [
+          "objective"
+        ]
+      },
+      "then": {
+        "properties": {
+          "objective": {
+            "properties": {
+              "indicator": {
+                "properties": {
+                  "direction": {
+                    "enum": [
+                      "at-most",
+                      "exactly"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,489 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/Jason-Doyle/reliability-field-guides/schemas/observability-decision-map/1.0.0",
+  "$comment": "Author: Jason Doyle. Version 1.0.0. Created and last reviewed 2026-08-31.",
+  "title": "Observability Decision Map",
+  "description": "A decision-centred contract connecting operational consequence to evidence, interpretation, action, feedback, and validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "version",
+    "status",
+    "serviceOrJourney",
+    "title",
+    "owner",
+    "backupOwner",
+    "createdAt",
+    "reviewedAt",
+    "nextValidationAt",
+    "decision",
+    "evidence",
+    "interpretation",
+    "action",
+    "feedback",
+    "validation",
+    "scoring"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "format": "uri-reference"
+    },
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "id": {
+      "$ref": "#/$defs/identifier"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "active",
+        "retired"
+      ]
+    },
+    "serviceOrJourney": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "owner": {
+      "$ref": "#/$defs/identifier"
+    },
+    "backupOwner": {
+      "$ref": "#/$defs/identifier"
+    },
+    "automatedController": {
+      "$ref": "#/$defs/identifier"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "nextValidationAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "statement",
+        "condition",
+        "actor",
+        "choices",
+        "latencyObjectiveSeconds",
+        "consequence",
+        "weight"
+      ],
+      "properties": {
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "condition": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "actor": {
+          "$ref": "#/$defs/identifier"
+        },
+        "choices": {
+          "type": "array",
+          "minItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "latencyObjectiveSeconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "consequence": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "weight": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        }
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/evidence"
+      }
+    },
+    "interpretation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "rule",
+        "confidenceRequired",
+        "knownBlindSpots",
+        "whenToEscalate"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "threshold",
+            "playbook",
+            "hypothesis-path",
+            "trained-judgement",
+            "policy"
+          ]
+        },
+        "rule": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        "confidenceRequired": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "knownBlindSpots": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "whenToEscalate": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "permittedActions",
+        "authority",
+        "rollbackOrRecovery",
+        "communicationPath",
+        "confirmationSignals"
+      ],
+      "properties": {
+        "permittedActions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "authority": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "rollbackOrRecovery": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "communicationPath": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "confirmationSignals": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "feedback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "reviewRecord",
+        "owner",
+        "dueWithinDays",
+        "improvementTargets"
+      ],
+      "properties": {
+        "reviewRecord": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "owner": {
+          "$ref": "#/$defs/identifier"
+        },
+        "dueWithinDays": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "improvementTargets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "lastValidatedAt",
+        "evidence",
+        "outcome"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "drill",
+            "game-day",
+            "incident-review",
+            "replay",
+            "sampling"
+          ]
+        },
+        "lastValidatedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uri-reference"
+          }
+        },
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "pass",
+            "conditional",
+            "fail"
+          ]
+        }
+      }
+    },
+    "scoring": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "purpose",
+        "owner",
+        "evidence",
+        "interpretation",
+        "action",
+        "feedback",
+        "validation",
+        "weight",
+        "conservativeCoverage",
+        "supportScore",
+        "falseConfidenceGap"
+      ],
+      "properties": {
+        "purpose": {
+          "$ref": "#/$defs/coverageScore"
+        },
+        "owner": {
+          "$ref": "#/$defs/coverageScore"
+        },
+        "evidence": {
+          "$ref": "#/$defs/coverageScore"
+        },
+        "interpretation": {
+          "$ref": "#/$defs/coverageScore"
+        },
+        "action": {
+          "$ref": "#/$defs/coverageScore"
+        },
+        "feedback": {
+          "$ref": "#/$defs/coverageScore"
+        },
+        "validation": {
+          "$ref": "#/$defs/coverageScore"
+        },
+        "weight": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "conservativeCoverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "supportScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        },
+        "falseConfidenceGap": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 5
+        }
+      }
+    }
+  },
+  "$defs": {
+    "identifier": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "coverageScore": {
+      "type": "number",
+      "enum": [
+        0,
+        0.5,
+        1
+      ]
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "question",
+        "signalTypes",
+        "source",
+        "freshnessObjectiveSeconds",
+        "scope",
+        "qualityLimits",
+        "fallback"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/identifier"
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        "signalTypes": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "metric",
+              "log",
+              "trace",
+              "event",
+              "profile",
+              "probe",
+              "customer",
+              "support",
+              "change",
+              "dependency"
+            ]
+          }
+        },
+        "source": {
+          "type": "string",
+          "format": "uri-reference"
+        },
+        "freshnessObjectiveSeconds": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scope": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "qualityLimits": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "fallback": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 1000
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "active"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "validation": {
+            "properties": {
+              "outcome": {
+                "enum": [
+                  "pass",
+                  "conditional"
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

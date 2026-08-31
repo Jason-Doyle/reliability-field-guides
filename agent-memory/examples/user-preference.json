@@ -1,0 +1,94 @@
+{
+  "$schema": "../memory-record.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "memory.user-1042.response-format",
+  "version": 1,
+  "memoryClass": "user-preference",
+  "riskTier": 1,
+  "status": "active",
+  "content": {
+    "statement": "User 1042 prefers concise responses with action items first.",
+    "structuredValue": {
+      "responseLength": "concise",
+      "actionItemsFirst": true
+    },
+    "language": "en"
+  },
+  "scope": {
+    "namespace": "example-consumer/user-1042",
+    "owner": {
+      "type": "user",
+      "id": "user.1042"
+    },
+    "subjects": [
+      {
+        "type": "user",
+        "id": "user.1042"
+      }
+    ],
+    "audience": [
+      {
+        "type": "agent",
+        "id": "agent.personal-assistant"
+      }
+    ],
+    "accessPolicy": "policy://memory/user-private"
+  },
+  "provenance": {
+    "source": {
+      "type": "user-statement",
+      "id": "message.7781",
+      "uri": "conversation://thread-44/message-7781",
+      "trustLevel": "trusted"
+    },
+    "writer": {
+      "type": "agent",
+      "id": "agent.personal-assistant"
+    },
+    "observedAt": "2026-08-31T18:14:00Z",
+    "capturedAt": "2026-08-31T18:14:02Z",
+    "extractionMethod": "model-extraction"
+  },
+  "validation": {
+    "status": "owner-confirmed",
+    "validatedBy": {
+      "type": "user",
+      "id": "user.1042"
+    },
+    "validatedAt": "2026-08-31T18:14:05Z",
+    "confidence": 1
+  },
+  "lifecycle": {
+    "validFrom": "2026-08-31T18:14:05Z",
+    "reviewAfter": "2027-02-28T00:00:00Z",
+    "expiresAt": "2027-08-31T18:14:05Z",
+    "retention": {
+      "mode": "ttl",
+      "policyId": "retention.user-preference.365d",
+      "ttlDays": 365
+    }
+  },
+  "policy": {
+    "sensitivity": "internal",
+    "allowedUses": [
+      "response-formatting"
+    ],
+    "prohibitedUses": [
+      "advertising-targeting",
+      "personnel-evaluation"
+    ],
+    "authoritativeSourceRequiredBeforeAction": false
+  },
+  "relationships": {},
+  "audit": {
+    "createdAt": "2026-08-31T18:14:02Z",
+    "createdBy": {
+      "type": "service",
+      "id": "service.memory-store"
+    },
+    "updatedAt": "2026-08-31T18:14:05Z",
+    "lastRetrievedAt": null,
+    "lastConsequentialUseAt": null,
+    "retrievalCount": 0
+  }
+}

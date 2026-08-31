@@ -1,0 +1,112 @@
+{
+  "$schema": "../integration-decision.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "integration.incident-briefing",
+  "version": 1,
+  "title": "Provide a live incident briefing across operational systems",
+  "status": "approved",
+  "owner": "team.reliability-platform",
+  "createdAt": "2026-08-31T17:00:00Z",
+  "reviewedAt": "2026-08-31T19:00:00Z",
+  "nextReviewAt": "2026-10-31T00:00:00Z",
+  "requirement": {
+    "userGoal": "Allow approved agent hosts to retrieve current alerts, deploys, support trends, and incident decisions through one governed interface.",
+    "scope": "organisation",
+    "broadRule": false,
+    "repeatableProcedure": true,
+    "liveExternalState": true,
+    "externalWriteAction": false,
+    "consequentialAction": false,
+    "crossHostReuse": true,
+    "freshnessObjective": "Operational evidence no more than two minutes old."
+  },
+  "existingCapabilities": [
+    {
+      "name": "Vendor-specific incident connectors",
+      "type": "native-connector",
+      "fit": "partial",
+      "gap": "No single connector covers the required systems or provides a shared schema and tenant policy."
+    },
+    {
+      "name": "Direct service APIs",
+      "type": "api",
+      "fit": "partial",
+      "gap": "Each host would need separate credentials, integration code, schemas, and audit handling."
+    }
+  ],
+  "candidates": [
+    {
+      "mechanism": "mcp-server",
+      "fit": "meets",
+      "advantages": [
+        "Creates a shared typed capability surface with central credentials, scope, and audit."
+      ],
+      "limitations": [
+        "Introduces a production service with availability and support obligations."
+      ],
+      "operationalBurden": "high"
+    },
+    {
+      "mechanism": "native-integration",
+      "fit": "partial",
+      "advantages": [
+        "Uses supported identity and consent paths."
+      ],
+      "limitations": [
+        "Available connectors do not cover the full evidence set."
+      ],
+      "operationalBurden": "medium"
+    },
+    {
+      "mechanism": "agent-skill",
+      "fit": "partial",
+      "advantages": [
+        "Can package the briefing procedure and interpretation guidance."
+      ],
+      "limitations": [
+        "Cannot provide current state, central credentials, or server-side authorisation by itself."
+      ],
+      "operationalBurden": "low"
+    }
+  ],
+  "mcpEligibility": {
+    "multipleHostsOrTeams": true,
+    "discoverableCapabilities": true,
+    "typedSchemasPreventErrors": true,
+    "credentialBoundary": true,
+    "centralAuthorisation": true,
+    "stableRemoteEndpoint": true,
+    "auditableStructuredCalls": true,
+    "operationalOwner": "team.reliability-platform",
+    "monitoringAndSupport": true,
+    "versioningAndRetirement": true
+  },
+  "correctnessBoundaries": [
+    {
+      "rule": "The caller may retrieve only incidents and tenants allowed by current identity policy.",
+      "enforcementPoint": "server-code",
+      "failureBehaviour": "Return an explicit authorisation failure without querying restricted sources."
+    },
+    {
+      "rule": "The briefing must distinguish confirmed evidence from generated interpretation.",
+      "enforcementPoint": "client-code",
+      "failureBehaviour": "Mark unsupported sections as unavailable instead of presenting them as facts."
+    }
+  ],
+  "decision": {
+    "selectedMechanism": "mcp-server",
+    "rationale": "Live state, cross-host reuse, typed schemas, central credentials, tenant policy, and structured audit make the protocol boundary materially valuable.",
+    "rejectedAlternatives": [
+      {
+        "mechanism": "native-integration",
+        "reason": "No supported connector covers the required systems and shared policy."
+      },
+      {
+        "mechanism": "agent-skill",
+        "reason": "A skill can package the briefing workflow but cannot supply the governed live capabilities."
+      }
+    ],
+    "approvedBy": "director.reliability",
+    "approvedAt": "2026-08-31T19:00:00Z"
+  }
+}

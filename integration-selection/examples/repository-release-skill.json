@@ -1,0 +1,100 @@
+{
+  "$schema": "../integration-decision.schema.json",
+  "schemaVersion": "1.0.0",
+  "id": "integration.repository-release",
+  "version": 1,
+  "title": "Package the repository release process",
+  "status": "approved",
+  "owner": "team.developer-experience",
+  "createdAt": "2026-08-31T17:00:00Z",
+  "reviewedAt": "2026-08-31T18:00:00Z",
+  "nextReviewAt": "2026-11-30T00:00:00Z",
+  "requirement": {
+    "userGoal": "Prepare a release using the repository's existing build, test, changelog, tagging, and publishing tools.",
+    "scope": "repository",
+    "broadRule": false,
+    "repeatableProcedure": true,
+    "liveExternalState": false,
+    "externalWriteAction": true,
+    "consequentialAction": true,
+    "crossHostReuse": false
+  },
+  "existingCapabilities": [
+    {
+      "name": "GitHub CLI and repository release scripts",
+      "type": "cli",
+      "fit": "partial",
+      "gap": "The operations exist, but their sequence, validation points, and repository-specific judgement are not packaged."
+    }
+  ],
+  "candidates": [
+    {
+      "mechanism": "agent-skill",
+      "fit": "meets",
+      "advantages": [
+        "Packages the procedure, examples, and repository context without adding a service."
+      ],
+      "limitations": [
+        "Still depends on existing tools and repository permissions."
+      ],
+      "operationalBurden": "low"
+    },
+    {
+      "mechanism": "local-script",
+      "fit": "partial",
+      "advantages": [
+        "Can automate deterministic checks and release commands."
+      ],
+      "limitations": [
+        "Does not explain judgement points or missing-information behaviour by itself."
+      ],
+      "operationalBurden": "low"
+    },
+    {
+      "mechanism": "mcp-server",
+      "fit": "does-not-meet",
+      "advantages": [
+        "Could expose typed release operations."
+      ],
+      "limitations": [
+        "Adds an unnecessary service boundary when repository tools already exist."
+      ],
+      "operationalBurden": "high"
+    }
+  ],
+  "skillEligibility": {
+    "existingToolsSufficient": true,
+    "credentialCustodyRequired": false,
+    "serverSidePolicyRequired": false,
+    "inspectableDependencies": true,
+    "testedSuccessAndFailureCases": true
+  },
+  "correctnessBoundaries": [
+    {
+      "rule": "A release cannot publish unless the required test and build checks pass.",
+      "enforcementPoint": "client-code",
+      "failureBehaviour": "Stop before tagging or publishing and surface the failed check."
+    },
+    {
+      "rule": "Only an authorised maintainer may create the protected release tag.",
+      "enforcementPoint": "external-system",
+      "failureBehaviour": "GitHub rejects the tag or release operation."
+    }
+  ],
+  "decision": {
+    "selectedMechanism": "agent-skill",
+    "rationale": "The missing capability is a repeatable repository procedure. Existing tools perform the underlying operations and retain their permission boundaries.",
+    "rejectedAlternatives": [
+      {
+        "mechanism": "local-script",
+        "reason": "Useful as a component, but insufficient for the decision points and explanatory context."
+      },
+      {
+        "mechanism": "mcp-server",
+        "reason": "No reusable live service boundary is required."
+      }
+    ],
+    "approvedBy": "principal.developer-experience",
+    "approvedAt": "2026-08-31T18:00:00Z"
+  }
+}
