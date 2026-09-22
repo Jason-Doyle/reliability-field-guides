@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Jason-Doyle/reliability-field-guides/schemas/observability-decision-map/1.0.0",
-  "$comment": "Author: Jason Doyle. Version 1.0.0. Created and last reviewed 2026-08-31.",
+  "$id": "https://raw.githubusercontent.com/Jason-Doyle/reliability-field-guides/v0.2.0/observability-decision-map/decision-map.schema.json",
+  "$comment": "Author: Jason Doyle. Version 2.0.0. Created 2026-08-31 and last reviewed 2026-09-22.",
   "title": "Observability Decision Map",
   "description": "A decision-centred contract connecting operational consequence to evidence, interpretation, action, feedback, and validation.",
   "type": "object",
@@ -32,7 +32,7 @@
       "format": "uri-reference"
     },
     "schemaVersion": {
-      "const": "1.0.0"
+      "const": "2.0.0"
     },
     "id": {
       "$ref": "#/$defs/identifier"
@@ -135,6 +135,7 @@
     "evidence": {
       "type": "array",
       "minItems": 1,
+      "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/evidence"
       }

@@ -1,6 +1,6 @@
 {
   "$schema": "../behavioural-slo.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "id": "slo.billing.refund-policy-path",
   "version": 1,
   "title": "Correct handling of high-consequence refund requests",

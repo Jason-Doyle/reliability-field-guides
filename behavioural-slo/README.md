@@ -3,9 +3,9 @@
 | Field | Value |
 | --- | --- |
 | Author | Jason Doyle |
-| Version | 1.0.0 |
+| Version | 2.0.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 A behavioural service level objective measures product behaviour that matters
 to users or affected people, including failures that ordinary availability and
@@ -57,7 +57,10 @@ The schema enforces several baseline rules:
   approval bound to the exact payload, and an incident trigger;
 - prohibited-autonomy workflows cannot enable model execution;
 - irreversible behaviour requires a stop condition and incident response;
-- harmful-action objectives use an at-most or exactly-zero direction.
+- ratio and percentage thresholds remain within their valid ranges;
+- count thresholds are integers;
+- harmful-action objectives use an at-most direction or an exactly-zero
+  target.
 
 The adopting system must still verify dataset quality, temporal ordering,
 measurement implementation, cohort coverage, and whether deterministic controls
@@ -71,6 +74,14 @@ From the repository root:
 npm ci
 npm test
 ```
+
+Validate an adopted SLO:
+
+```powershell
+npm run validate -- path/to/behavioural-slo.json
+```
+
+Version `1.0.0` remains available from release tag `v0.1.0`.
 
 ## Related paper
 

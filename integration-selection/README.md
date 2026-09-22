@@ -3,9 +3,9 @@
 | Field | Value |
 | --- | --- |
 | Author | Jason Doyle |
-| Version | 1.0.0 |
+| Version | 2.0.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 Use the minimum sufficient integration that satisfies the requirement and puts
 correctness at the right boundary.
@@ -68,8 +68,9 @@ The schema rejects several common shortcuts:
 
 The schema does not calculate the right answer. It makes the assumptions,
 alternatives, operating obligations, and deterministic controls reviewable.
-Repository validation also confirms that selected and rejected mechanisms were
-actually included in the candidate comparison.
+Semantic validation also confirms that candidate and rejected mechanisms are
+unique, and that selected and rejected mechanisms were actually included in
+the candidate comparison.
 
 ## Validate the examples
 
@@ -79,6 +80,14 @@ From the repository root:
 npm ci
 npm test
 ```
+
+Validate an adopted decision:
+
+```powershell
+npm run validate -- path/to/integration-decision.json
+```
+
+Version `1.0.0` remains available from release tag `v0.1.0`.
 
 ## Related paper
 

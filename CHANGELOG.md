@@ -8,6 +8,37 @@ each governed artifact.
 
 ## [Unreleased]
 
+### Breaking
+
+- Advanced all five field-guide schemas to version 2.0.0.
+- Bounded behavioural SLO ratio, percentage, count, and exactly-zero
+  harmful-action thresholds.
+- Required exactly one selected option for approved and executed incident
+  decisions.
+
+### Added
+
+- Consumer-facing artifact validation through `npm run validate`.
+- Shared semantic validation for record identity, chronology, decision
+  consistency, and derived observability scores.
+- Updated worksheets and templates to capture the new semantic requirements.
+- YAML and local JSON Schema reference validation.
+- Dependabot configuration for npm and GitHub Actions.
+- Issue and pull-request templates and a repository code of conduct.
+
+### Changed
+
+- Replaced non-resolving schema identifiers with immutable `v0.2.0` release
+  URLs.
+- Updated security reporting and supported-version guidance.
+- Pinned third-party Actions to full commit SHAs.
+- Normalised the artifact-retention workflow to LF line endings.
+
+### Security
+
+- Enabled repository security reporting and dependency alerting.
+- Added release-tag and immutable-release protections.
+
 ## [0.1.0] - 2026-08-31
 
 ### Added

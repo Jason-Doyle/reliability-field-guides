@@ -3,9 +3,9 @@
 | Field | Value |
 | --- | --- |
 | Author | Jason Doyle |
-| Version | 1.0.0 |
+| Version | 2.0.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 Persistent agent memory is production state when it can influence later
 reasoning or actions. This field guide provides a concrete record contract and
@@ -157,6 +157,12 @@ npm test
 The test suite validates every JSON document in `agent-memory/examples` and
 checks negative cases for the contract's main safety constraints.
 
+Validate an adopted record:
+
+```powershell
+npm run validate -- path/to/memory-record.json
+```
+
 ## What this contract does not provide
 
 The schema does not:
@@ -184,6 +190,11 @@ Consumers should:
 - validate records at write and read boundaries;
 - migrate records explicitly rather than interpreting missing fields silently;
 - retain the original schema version in audit events.
+
+Version `2.0.0` adds consumer-facing semantic validation for temporal order,
+overlapping allowed and prohibited uses, self-referential relationships, and
+deletion sequencing. Version `1.0.0` remains available from release tag
+`v0.1.0`.
 
 ## Related paper
 

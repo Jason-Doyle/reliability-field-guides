@@ -1,6 +1,6 @@
 {
   "$schema": "../memory-record.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "id": "memory.checkout-api.owner",
   "version": 3,
   "memoryClass": "business-fact",

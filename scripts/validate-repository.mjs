@@ -2,6 +2,8 @@ import { access, readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { parseDocument } from 'yaml';
+
 const repositoryRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
@@ -86,7 +88,9 @@ const textFiles = files.filter(
 const markdownFiles = files.filter(
   (filePath) => path.extname(filePath) === '.md',
 );
+const yamlExtensions = new Set(['.cff', '.yaml', '.yml']);
 const failures = [];
+let structuredFileCount = 0;
 
 for (const filePath of textFiles) {
   const text = await readFile(filePath, 'utf8');
@@ -113,9 +117,38 @@ for (const filePath of textFiles) {
 
   if (path.extname(filePath) === '.json') {
     try {
-      JSON.parse(text);
+      const document = JSON.parse(text);
+      structuredFileCount += 1;
+
+      if (
+        typeof document.$schema === 'string' &&
+        !document.$schema.startsWith('#') &&
+        !/^[a-z][a-z0-9+.-]*:/i.test(document.$schema)
+      ) {
+        const schemaPath = path.resolve(
+          path.dirname(filePath),
+          decodeURIComponent(document.$schema.split('#', 1)[0]),
+        );
+
+        if (!(await pathExists(schemaPath))) {
+          failures.push(
+            `${relativePath} references missing schema ${document.$schema}`,
+          );
+        }
+      }
     } catch (error) {
       failures.push(`${relativePath} is invalid JSON: ${error.message}`);
+    }
+  }
+
+  if (yamlExtensions.has(path.extname(filePath))) {
+    const document = parseDocument(text, {
+      prettyErrors: false,
+    });
+    structuredFileCount += 1;
+
+    for (const error of document.errors) {
+      failures.push(`${relativePath} is invalid YAML: ${error.message}`);
     }
   }
 }
@@ -164,5 +197,5 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `Validated ${textFiles.length} text files and ${localLinkCount} local Markdown links.`,
+  `Validated ${textFiles.length} text files, ${structuredFileCount} structured files, and ${localLinkCount} local Markdown links.`,
 );

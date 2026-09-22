@@ -1,6 +1,6 @@
 {
   "$schema": "../behavioural-slo.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "id": "slo.customer-message.unauthorised-action",
   "version": 1,
   "title": "Prevent unauthorised customer messages",

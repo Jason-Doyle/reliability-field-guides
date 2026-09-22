@@ -1,0 +1,56 @@
+name: Field guide issue or proposal
+description: Report a contract defect or propose an evidence-backed change
+title: "[Field guide]: "
+body:
+  - type: dropdown
+    id: guide
+    attributes:
+      label: Field guide
+      options:
+        - Agent Memory Record
+        - Integration Selection
+        - Behavioural SLO
+        - Incident Command
+        - Observability Decision Map
+        - Repository validation or governance
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or failure mode
+      description: Describe the decision, implementation problem, or failure.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Provide a reproduction, example, source, or observed result.
+    validations:
+      required: true
+  - type: textarea
+    id: change
+    attributes:
+      label: Proposed change
+      description: Explain the smallest change that addresses the problem.
+    validations:
+      required: true
+  - type: textarea
+    id: compatibility
+    attributes:
+      label: Compatibility impact
+      description: Identify records, schema versions, or adopters affected.
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Submission checks
+      options:
+        - label: This is not a security vulnerability.
+          required: true
+        - label: The example uses fictional data and contains no credentials.
+          required: true
+        - label: I have read and will follow the code of conduct.
+          required: true

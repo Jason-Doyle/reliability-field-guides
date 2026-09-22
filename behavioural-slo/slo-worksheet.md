@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| Template version | 1.0.0 |
+| Template version | 1.1.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 ## Identity and ownership
 
@@ -60,6 +60,9 @@ Exclusions and reasons:
 
 Avoid a denominator that removes difficult or failed cases merely because the
 system could not evaluate them.
+
+Use thresholds from 0 to 1 for ratios and 0 to 100 for percentages. Count
+thresholds are integers. An `exactly` harmful-action target must be zero.
 
 ## 4. Evaluation and evidence
 

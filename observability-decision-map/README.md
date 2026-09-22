@@ -3,9 +3,9 @@
 | Field | Value |
 | --- | --- |
 | Author | Jason Doyle |
-| Version | 1.0.0 |
+| Version | 2.0.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 The smallest useful unit of observability design is a decision, not a
 dashboard.
@@ -64,6 +64,13 @@ npm run decision-coverage -- observability-decision-map/examples/checkout-failov
 The command verifies the stored weight and derived scores before printing the
 result.
 
+Validate the complete adopted record, including evidence identity and temporal
+checks:
+
+```powershell
+npm run validate -- path/to/decision-map.json
+```
+
 ## Design sequence
 
 1. State the decision in operational language.
@@ -83,6 +90,8 @@ supports exploratory investigation, compliance, or a declared retention need.
 npm ci
 npm test
 ```
+
+Version `1.0.0` remains available from release tag `v0.1.0`.
 
 ## Related paper
 

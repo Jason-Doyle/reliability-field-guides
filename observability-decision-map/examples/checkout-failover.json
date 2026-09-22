@@ -1,6 +1,6 @@
 {
   "$schema": "../decision-map.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "id": "decision.checkout.failover",
   "version": 1,
   "status": "active",

@@ -1,11 +1,12 @@
 {
   "name": "reliability-field-guides",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Validation tooling for the Reliability Field Guides repository.",
   "type": "module",
   "scripts": {
     "test": "node scripts/validate-repository.mjs && node scripts/validate-contracts.mjs",
+    "validate": "node scripts/validate-artifact.mjs",
     "decision-coverage": "node scripts/calculate-decision-coverage.mjs"
   },
   "engines": {
@@ -13,6 +14,7 @@
   },
   "devDependencies": {
     "ajv": "8.20.0",
-    "ajv-formats": "3.0.1"
+    "ajv-formats": "3.0.1",
+    "yaml": "2.9.1"
   }
 }

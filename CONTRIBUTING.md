@@ -25,6 +25,10 @@ A schema change should include:
 - a changelog entry;
 - a `schemaVersion` change when compatibility requires one.
 
+Tightening a contract so that previously accepted records become invalid is a
+breaking change and requires a new major schema version. Published release tags
+and their schema versions must remain immutable.
+
 Do not add a field solely because a specific vendor exposes it. Prefer
 technology-neutral concepts with a clear reliability purpose.
 
@@ -48,6 +52,14 @@ npm test
 
 All examples must pass. Negative contract cases must continue to fail for their
 intended reason.
+
+Validate a proposed or adopted artifact directly with:
+
+```powershell
+npm run validate -- path/to/artifact.json
+```
+
+Use `--contract <name>` when the artifact does not declare `$schema`.
 
 ## Pull requests
 
