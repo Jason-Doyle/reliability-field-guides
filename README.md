@@ -6,8 +6,7 @@ incident response, and dependable AI operations.
 | Field | Value |
 | --- | --- |
 | Author and maintainer | Jason Doyle |
-| Latest release | 0.1.0 |
-| Current development version | 0.2.0 |
+| Collection version | 0.2.0 |
 | Created | 31 August 2026 |
 | Last reviewed | 22 September 2026 |
 
@@ -96,10 +95,9 @@ This repository is an evolving collection of field guides. Changes to schemas
 and templates are documented in [CHANGELOG.md](CHANGELOG.md).
 
 Schema version `1.0.0` remains available from release tag `v0.1.0`. Current
-development advances the five contracts to schema version `2.0.0`; the
-canonical schema identifiers will resolve from release tag `v0.2.0` when that
-release is published. Check out `v0.1.0` to validate records against the
-previous contracts.
+release `v0.2.0` provides schema version `2.0.0` and resolvable canonical
+schema identifiers. Check out `v0.1.0` to validate records against the previous
+contracts.
 
 ## Contributing
 

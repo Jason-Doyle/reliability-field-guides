@@ -8,6 +8,8 @@ each governed artifact.
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-22
+
 ### Breaking
 
 - Advanced all five field-guide schemas to version 2.0.0.
