@@ -10,8 +10,9 @@ Do not open a public issue for a vulnerability that could enable scope leakage,
 memory poisoning, policy bypass, unsafe procedure activation, or exposure of
 sensitive records.
 
-Use GitHub's private vulnerability reporting option on the repository Security
-tab. Include:
+Use the repository's
+[private vulnerability reporting form](https://github.com/Jason-Doyle/reliability-field-guides/security/advisories/new).
+Include:
 
 - the affected artifact and revision;
 - the failure scenario;
@@ -19,11 +20,15 @@ tab. Include:
 - a minimal reproduction where it is safe to provide one;
 - the likely consequence and affected risk tier.
 
-If private vulnerability reporting is unavailable, use the contact route at
-[jasondoyle.ie](https://jasondoyle.ie/) and avoid including exploit details in
-the first message.
+If GitHub private reporting is unavailable, use the contact route at
+[jasondoyle.ie](https://jasondoyle.ie/) and avoid including exploit details
+in the first message.
 
 ## Supported versions
 
-Until the first tagged release, only the current `main` branch is maintained.
-After releases begin, support status will be recorded here.
+The current `main` branch and the latest tagged collection release receive
+security corrections. Older release tags remain immutable references for
+compatibility and citation, but they do not receive updates.
+
+Schema consumers should include both the schema version and repository revision
+in reports so a defect can be assessed against the correct contract.

@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| Template version | 1.0.0 |
+| Template version | 1.1.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 ## Decision identity
 
@@ -53,6 +53,9 @@ Do not build a new interface merely to rename a capability that already works.
 | Local script |  |  |  | Low to medium |
 | MCP server |  |  |  | High |
 | User interface |  |  |  | Depends on product |
+
+Record each mechanism once. The selected mechanism and every rejected
+alternative must appear in this comparison.
 
 ## 4. Skill eligibility
 

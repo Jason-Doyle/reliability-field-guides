@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| Template version | 1.0.0 |
+| Template version | 1.1.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 ## Decision identity
 
@@ -41,9 +41,9 @@ Weight: 1 convenience | 2 operational | 3 customer-visible | 4 material | 5 crit
 
 Create one row for each question the decision maker must answer.
 
-| Evidence question | Signals and source | Freshness | Scope | Quality limits | Fallback |
-| --- | --- | --- | --- | --- | --- |
-|  | Metric / log / trace / event / profile / probe / customer / support / change / dependency |  |  |  |  |
+| Evidence ID | Evidence question | Signals and source | Freshness | Scope | Quality limits | Fallback |
+| --- | --- | --- | --- | --- | --- | --- |
+|  |  | Metric / log / trace / event / profile / probe / customer / support / change / dependency |  |  |  |  |
 
 Useful categories include:
 

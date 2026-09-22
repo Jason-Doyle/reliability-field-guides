@@ -1,58 +1,19 @@
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-import Ajv2020 from 'ajv/dist/2020.js';
-import addFormats from 'ajv-formats';
 
 import {
-  verifyStoredDecisionCoverage,
-} from './calculate-decision-coverage.mjs';
-
-const repositoryRoot = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-);
-
-const contractDefinitions = [
-  {
-    key: 'agent-memory',
-    directory: 'agent-memory',
-    schema: 'memory-record.schema.json',
-  },
-  {
-    key: 'integration-selection',
-    directory: 'integration-selection',
-    schema: 'integration-decision.schema.json',
-  },
-  {
-    key: 'behavioural-slo',
-    directory: 'behavioural-slo',
-    schema: 'behavioural-slo.schema.json',
-  },
-  {
-    key: 'incident-command',
-    directory: 'incident-command',
-    schema: 'decision-log.schema.json',
-  },
-  {
-    key: 'observability-decision-map',
-    directory: 'observability-decision-map',
-    schema: 'decision-map.schema.json',
-  },
-];
+  compileContracts,
+  contractDefinitions,
+  formatErrors,
+  repositoryRoot,
+  validateContractRecord,
+} from './contract-validation.mjs';
+import {
+  verifyContractSemantics,
+} from './semantic-validation.mjs';
 
 async function readJson(filePath) {
   return JSON.parse(await readFile(filePath, 'utf8'));
-}
-
-function formatErrors(errors) {
-  return errors
-    .map((error) => {
-      const location = error.instancePath || '/';
-      return `${location} ${error.message}`;
-    })
-    .join('\n');
 }
 
 function clone(value) {
@@ -79,64 +40,13 @@ function matchesExpectedError(error, expected) {
   return true;
 }
 
-function verifyIntegrationDecision(record) {
-  const candidateMechanisms = record.candidates.map(
-    (candidate) => candidate.mechanism,
-  );
-  const candidateSet = new Set(candidateMechanisms);
-  const selectedMechanism = record.decision.selectedMechanism;
-
-  if (candidateSet.size !== candidateMechanisms.length) {
-    throw new Error('Integration decision contains duplicate mechanisms.');
-  }
-
-  if (!candidateSet.has(selectedMechanism)) {
-    throw new Error(
-      `Selected mechanism ${selectedMechanism} was not evaluated as a candidate.`,
-    );
-  }
-
-  const selectedCandidate = record.candidates.find(
-    (candidate) => candidate.mechanism === selectedMechanism,
-  );
-
-  if (selectedCandidate.fit === 'does-not-meet') {
-    throw new Error(
-      `Selected mechanism ${selectedMechanism} is marked as not meeting the requirement.`,
-    );
-  }
-
-  for (const alternative of record.decision.rejectedAlternatives) {
-    if (!candidateSet.has(alternative.mechanism)) {
-      throw new Error(
-        `Rejected mechanism ${alternative.mechanism} was not evaluated as a candidate.`,
-      );
-    }
-
-    if (alternative.mechanism === selectedMechanism) {
-      throw new Error(
-        `Selected mechanism ${selectedMechanism} is also listed as rejected.`,
-      );
-    }
-  }
-}
-
-const ajv = new Ajv2020({
-  allErrors: true,
-  strict: true,
-  // Conditional fragments extend object definitions declared by parent schemas.
-  strictRequired: false,
-  strictTypes: false,
-});
-addFormats(ajv);
-
+const compiledContracts = await compileContracts();
 const contracts = new Map();
 let exampleCount = 0;
 
 for (const definition of contractDefinitions) {
   const contractPath = path.join(repositoryRoot, definition.directory);
-  const schema = await readJson(path.join(contractPath, definition.schema));
-  const validate = ajv.compile(schema);
+  const validate = compiledContracts.get(definition.key).validate;
   const examplesPath = path.join(contractPath, 'examples');
   const exampleFiles = (await readdir(examplesPath))
     .filter((fileName) => fileName.endsWith('.json'))
@@ -145,20 +55,11 @@ for (const definition of contractDefinitions) {
 
   for (const fileName of exampleFiles) {
     const record = await readJson(path.join(examplesPath, fileName));
-
-    if (!validate(record)) {
-      throw new Error(
-        `${definition.key}/${fileName} does not satisfy its contract:\n${formatErrors(validate.errors)}`,
-      );
-    }
-
-    if (definition.key === 'observability-decision-map') {
-      verifyStoredDecisionCoverage(record);
-    }
-
-    if (definition.key === 'integration-selection') {
-      verifyIntegrationDecision(record);
-    }
+    await validateContractRecord(
+      definition.key,
+      record,
+      `${definition.key}/${fileName}`,
+    );
 
     examples.set(fileName, record);
     exampleCount += 1;
@@ -387,6 +288,61 @@ const negativeCases = [
   },
   {
     contract: 'behavioural-slo',
+    name: 'ratio threshold above one',
+    record: (() => {
+      const record = clone(refundSlo);
+      record.objective.indicator.threshold = 1.5;
+      return record;
+    })(),
+    expected: {
+      keyword: 'maximum',
+      instancePath: '/objective/indicator/threshold',
+    },
+  },
+  {
+    contract: 'behavioural-slo',
+    name: 'percentage threshold above one hundred',
+    record: (() => {
+      const record = clone(refundSlo);
+      record.objective.indicator.unit = 'percentage';
+      record.objective.indicator.threshold = 100.1;
+      return record;
+    })(),
+    expected: {
+      keyword: 'maximum',
+      instancePath: '/objective/indicator/threshold',
+    },
+  },
+  {
+    contract: 'behavioural-slo',
+    name: 'fractional count threshold',
+    record: (() => {
+      const record = clone(refundSlo);
+      record.objective.indicator.unit = 'count';
+      record.objective.indicator.threshold = 1.5;
+      return record;
+    })(),
+    expected: {
+      keyword: 'type',
+      instancePath: '/objective/indicator/threshold',
+    },
+  },
+  {
+    contract: 'behavioural-slo',
+    name: 'non-zero exact harmful-action target',
+    record: (() => {
+      const record = clone(actionSlo);
+      record.objective.indicator.direction = 'exactly';
+      record.objective.indicator.threshold = 0.5;
+      return record;
+    })(),
+    expected: {
+      keyword: 'const',
+      instancePath: '/objective/indicator/threshold',
+    },
+  },
+  {
+    contract: 'behavioural-slo',
     name: 'irreversible behaviour without a stop condition',
     record: (() => {
       const record = clone(actionSlo);
@@ -425,6 +381,34 @@ const negativeCases = [
       keyword: 'required',
       instancePath: '/decisions/0',
       missingProperty: 'confirmation',
+    },
+  },
+  {
+    contract: 'incident-command',
+    name: 'executed incident decision without a selected option',
+    record: (() => {
+      const record = clone(incidentDecisions);
+      record.decisions[0].options.forEach((option) => {
+        option.disposition = 'rejected';
+      });
+      return record;
+    })(),
+    expected: {
+      keyword: 'contains',
+      instancePath: '/decisions/0/options',
+    },
+  },
+  {
+    contract: 'incident-command',
+    name: 'incident decision with multiple selected options',
+    record: (() => {
+      const record = clone(incidentDecisions);
+      record.decisions[0].options[1].disposition = 'selected';
+      return record;
+    })(),
+    expected: {
+      keyword: 'contains',
+      instancePath: '/decisions/0/options',
     },
   },
   {
@@ -514,22 +498,27 @@ for (const testCase of negativeCases) {
   }
 }
 
-const incorrectCoverage = clone(checkoutFailover);
-incorrectCoverage.scoring.supportScore = 4;
-let coverageMismatchRejected = false;
-
-try {
-  verifyStoredDecisionCoverage(incorrectCoverage);
-} catch {
-  coverageMismatchRejected = true;
-}
-
-if (!coverageMismatchRejected) {
-  throw new Error('Decision coverage accepted an incorrect stored score.');
-}
-
-const invalidIntegrationDecisions = [
+const semanticNegativeCases = [
   {
+    contract: 'agent-memory',
+    name: 'memory use both allowed and prohibited',
+    record: (() => {
+      const record = clone(operationalFact);
+      record.policy.prohibitedUses.push(record.policy.allowedUses[0]);
+      return record;
+    })(),
+  },
+  {
+    contract: 'agent-memory',
+    name: 'memory captured before observation',
+    record: (() => {
+      const record = clone(operationalFact);
+      record.provenance.capturedAt = '2026-08-31T17:00:00Z';
+      return record;
+    })(),
+  },
+  {
+    contract: 'integration-selection',
     name: 'selected mechanism absent from candidate comparison',
     record: (() => {
       const record = clone(releaseSkill);
@@ -538,6 +527,7 @@ const invalidIntegrationDecisions = [
     })(),
   },
   {
+    contract: 'integration-selection',
     name: 'rejected mechanism absent from candidate comparison',
     record: (() => {
       const record = clone(releaseSkill);
@@ -546,6 +536,7 @@ const invalidIntegrationDecisions = [
     })(),
   },
   {
+    contract: 'integration-selection',
     name: 'duplicate mechanisms in candidate comparison',
     record: (() => {
       const record = clone(releaseSkill);
@@ -553,24 +544,107 @@ const invalidIntegrationDecisions = [
       return record;
     })(),
   },
+  {
+    contract: 'integration-selection',
+    name: 'duplicate rejected alternatives',
+    record: (() => {
+      const record = clone(releaseSkill);
+      record.decision.rejectedAlternatives[1].mechanism =
+        record.decision.rejectedAlternatives[0].mechanism;
+      return record;
+    })(),
+  },
+  {
+    contract: 'integration-selection',
+    name: 'next review before completed review',
+    record: (() => {
+      const record = clone(releaseSkill);
+      record.nextReviewAt = '2026-08-31T17:30:00Z';
+      return record;
+    })(),
+  },
+  {
+    contract: 'behavioural-slo',
+    name: 'next review before validation',
+    record: (() => {
+      const record = clone(refundSlo);
+      record.validation.nextReviewAt = '2026-08-30T00:00:00Z';
+      return record;
+    })(),
+  },
+  {
+    contract: 'incident-command',
+    name: 'duplicate decision IDs',
+    record: (() => {
+      const record = clone(incidentDecisions);
+      record.decisions[1].id = record.decisions[0].id;
+      return record;
+    })(),
+  },
+  {
+    contract: 'incident-command',
+    name: 'duplicate decision option text',
+    record: (() => {
+      const record = clone(incidentDecisions);
+      record.decisions[0].options[1].option =
+        record.decisions[0].options[0].option;
+      return record;
+    })(),
+  },
+  {
+    contract: 'incident-command',
+    name: 'decision review before decision time',
+    record: (() => {
+      const record = clone(incidentDecisions);
+      record.decisions[0].reviewAt = '2026-08-31T19:05:00Z';
+      return record;
+    })(),
+  },
+  {
+    contract: 'observability-decision-map',
+    name: 'duplicate evidence IDs',
+    record: (() => {
+      const record = clone(checkoutFailover);
+      record.evidence[1].id = record.evidence[0].id;
+      return record;
+    })(),
+  },
+  {
+    contract: 'observability-decision-map',
+    name: 'incorrect stored decision coverage',
+    record: (() => {
+      const record = clone(checkoutFailover);
+      record.scoring.supportScore = 4;
+      return record;
+    })(),
+  },
+  {
+    contract: 'observability-decision-map',
+    name: 'review before validation',
+    record: (() => {
+      const record = clone(checkoutFailover);
+      record.reviewedAt = '2026-08-31T19:00:00Z';
+      return record;
+    })(),
+  },
 ];
 
-for (const testCase of invalidIntegrationDecisions) {
+for (const testCase of semanticNegativeCases) {
   let rejected = false;
 
   try {
-    verifyIntegrationDecision(testCase.record);
+    verifyContractSemantics(testCase.contract, testCase.record);
   } catch {
     rejected = true;
   }
 
   if (!rejected) {
     throw new Error(
-      `Integration decision validation accepted invalid case: ${testCase.name}`,
+      `${testCase.contract} semantic validation accepted invalid case: ${testCase.name}`,
     );
   }
 }
 
 console.log(
-  `Validated ${contractDefinitions.length} schemas, ${exampleCount} examples, ${negativeCases.length} schema-negative cases, ${invalidIntegrationDecisions.length} integration semantic cases, and decision coverage calculations.`,
+  `Validated ${contractDefinitions.length} schemas, ${exampleCount} examples, ${negativeCases.length} schema-negative cases, and ${semanticNegativeCases.length} semantic-negative cases.`,
 );

@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| Template version | 1.0.0 |
+| Template version | 1.1.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 Record decisions that materially change impact, risk, customer communication,
 evidence preservation, or recovery.
@@ -25,8 +25,8 @@ Decision:
 Context and consequence:
 
 Options considered:
-1.
-2.
+1. Option, selected / rejected / deferred, reason
+2. Option, selected / rejected / deferred, reason
 
 Evidence:
 1. Type, time, source, summary, confidence
@@ -56,3 +56,6 @@ Successor decision ID:
 
 A decision may be urgent and still record uncertainty. Missing evidence should
 be visible rather than replaced by implied certainty.
+
+Use each decision identifier once. Approved and executed decisions must identify
+exactly one selected option; other statuses may identify at most one.

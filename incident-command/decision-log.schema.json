@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://github.com/Jason-Doyle/reliability-field-guides/schemas/incident-decision-log/1.0.0",
-  "$comment": "Author: Jason Doyle. Version 1.0.0. Created and last reviewed 2026-08-31.",
+  "$id": "https://raw.githubusercontent.com/Jason-Doyle/reliability-field-guides/v0.2.0/incident-command/decision-log.schema.json",
+  "$comment": "Author: Jason Doyle. Version 2.0.0. Created 2026-08-31 and last reviewed 2026-09-22.",
   "title": "Incident Decision Log",
   "description": "A machine-readable record of material incident decisions, evidence, authority, execution, and review.",
   "type": "object",
@@ -23,7 +23,7 @@
       "format": "uri-reference"
     },
     "schemaVersion": {
-      "const": "1.0.0"
+      "const": "2.0.0"
     },
     "incidentId": {
       "$ref": "#/$defs/identifier"
@@ -69,6 +69,7 @@
     "decisions": {
       "type": "array",
       "minItems": 1,
+      "uniqueItems": true,
       "items": {
         "$ref": "#/$defs/decision"
       }
@@ -270,6 +271,18 @@
         "options": {
           "type": "array",
           "minItems": 1,
+          "contains": {
+            "properties": {
+              "disposition": {
+                "const": "selected"
+              }
+            },
+            "required": [
+              "disposition"
+            ]
+          },
+          "minContains": 0,
+          "maxContains": 1,
           "items": {
             "$ref": "#/$defs/option"
           }
@@ -340,7 +353,53 @@
             "required": [
               "executedAt",
               "confirmation"
+            ],
+            "properties": {
+              "options": {
+                "contains": {
+                  "properties": {
+                    "disposition": {
+                      "const": "selected"
+                    }
+                  },
+                  "required": [
+                    "disposition"
+                  ]
+                },
+                "minContains": 1,
+                "maxContains": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "approved"
+              }
+            },
+            "required": [
+              "status"
             ]
+          },
+          "then": {
+            "properties": {
+              "options": {
+                "contains": {
+                  "properties": {
+                    "disposition": {
+                      "const": "selected"
+                    }
+                  },
+                  "required": [
+                    "disposition"
+                  ]
+                },
+                "minContains": 1,
+                "maxContains": 1
+              }
+            }
           }
         },
         {

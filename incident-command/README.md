@@ -3,9 +3,9 @@
 | Field | Value |
 | --- | --- |
 | Author | Jason Doyle |
-| Version | 1.0.0 |
+| Version | 2.0.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 Incident command converts incomplete evidence, distributed authority, parallel
 work, and communication pressure into a recoverable operating model.
@@ -54,14 +54,17 @@ The decision-log schema requires:
 
 - evidence, rationale, authority, an action owner, and review time for every
   material decision;
+- at most one selected option for every decision and exactly one for approved
+  or executed decisions;
 - execution time and confirmation evidence for an executed decision;
 - a reason for rejection;
 - a successor for a superseded decision;
 - a closure time when the incident is closed.
 
-The schema does not grant authority or prove that evidence is correct. Runbooks,
-access controls, escalation policy, and command practice must establish those
-properties.
+Semantic validation also rejects duplicate decision identifiers and duplicate
+option text. The schema does not grant authority or prove that evidence is
+correct. Runbooks, access controls, escalation policy, and command practice
+must establish those properties.
 
 ## Validate the example
 
@@ -71,6 +74,14 @@ From the repository root:
 npm ci
 npm test
 ```
+
+Validate an adopted decision log:
+
+```powershell
+npm run validate -- path/to/incident-decision-log.json
+```
+
+Version `1.0.0` remains available from release tag `v0.1.0`.
 
 ## Related paper
 

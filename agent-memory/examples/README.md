@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| Example-set version | 1.0.0 |
+| Example-set version | 2.0.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 These fictional records demonstrate the contract in
 [`memory-record.schema.json`](../memory-record.schema.json).

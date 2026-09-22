@@ -2,9 +2,9 @@
 
 | Field | Value |
 | --- | --- |
-| Template version | 1.0.0 |
+| Template version | 1.1.0 |
 | Created | 31 August 2026 |
-| Last reviewed | 31 August 2026 |
+| Last reviewed | 22 September 2026 |
 
 Use this checklist before enabling persistent memory, when adding a new memory
 class or use, and after a material incident or architecture change.
@@ -65,6 +65,7 @@ A policy statement alone is not evidence that the control operates.
 - [ ] Does active memory require evidence beyond an unverified model assertion?
 - [ ] Are sensitivity, permitted uses, prohibited uses, retention, and ownership
   assigned before activation?
+- [ ] Are permitted and prohibited uses disjoint?
 - [ ] Is confidence clearly defined as extraction or interpretation confidence,
   rather than truth probability?
 - [ ] Is untrusted or suspicious content quarantined before it can influence an

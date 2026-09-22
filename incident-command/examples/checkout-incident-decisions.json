@@ -1,6 +1,6 @@
 {
   "$schema": "../decision-log.schema.json",
-  "schemaVersion": "1.0.0",
+  "schemaVersion": "2.0.0",
   "incidentId": "INC-2026-0831-01",
   "title": "Checkout completion failures after release v42",
   "severity": "SEV-1",
